@@ -1,0 +1,13 @@
+{
+  "name": "@zflow/sdk",
+  "description": "The contract of zflow plugins: definePlugin, steps, runners, services, storage and widgets",
+  "version": "0.1.0",
+  "type": "module",
+  "repository": "github:ezequielgandolfi/zflow-types",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  }
+}

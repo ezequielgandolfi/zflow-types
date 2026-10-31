@@ -1,0 +1,29 @@
+# Pushing a tag like v1.2.0 checks and packs the plugin, then creates the GitHub release with the zflow-plugin.tgz
+# asset the Studio installs.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install
+      - run: npm run typecheck
+      - run: npm test --if-present
+      - run: npm run package
+      - name: Check the tag matches the plugin version
+        run: test "v$(jq -r .version dist/zflow-plugin/zflow-plugin.json)" = "$GITHUB_REF_NAME"
+      - run: gh release create "$GITHUB_REF_NAME" dist/zflow-plugin.tgz --title "$GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}

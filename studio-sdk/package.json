@@ -1,0 +1,17 @@
+{
+  "name": "@zflow/studio-sdk",
+  "description": "The contract of zflow plugins' Studio pages, widgets and templates",
+  "version": "0.1.0",
+  "type": "module",
+  "repository": "github:ezequielgandolfi/zflow-types",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "peerDependencies": {
+    "@zflow/sdk": "0.1.0",
+    "react": "^19.0.0"
+  }
+}
