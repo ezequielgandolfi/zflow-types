@@ -189,8 +189,23 @@ export interface StudioRouteInfo {
     params: Readonly<Record<string, string | undefined>>;
     query: URLSearchParams;
 }
+/** Who is using the Studio: the admin, or a viewer that opened a share link, who only reaches that dashboard. */
+export type StudioSession = {
+    kind: 'admin';
+} | {
+    kind: 'share';
+    projectId: string;
+    dashboardId: string;
+    allowActions: boolean;
+};
+export interface ShareDialogProps {
+    projectId: string;
+    dashboardId: string;
+    onClose: () => void;
+}
 /** Parts of the Studio that plugin pages reuse, so they look and behave like the core pages. */
 export interface StudioHost {
+    session: StudioSession;
     /** Every Studio module that loaded, core included. */
     plugins: StudioPlugin[];
     /** Manifests of the installed plugins; empty when the server couldn't be reached. */
@@ -208,6 +223,10 @@ export interface StudioHost {
         name: string | undefined;
         size?: number;
     }>;
+    /** A field's help text, as a tooltip on an info icon; put it inside the field's label. */
+    FieldHint: ComponentType<{
+        text: string | undefined;
+    }>;
     EmptyState: ComponentType<{
         icon: string;
         title: string;
@@ -219,6 +238,8 @@ export interface StudioHost {
     SectionActions: ComponentType<{
         children: ReactNode;
     }>;
+    /** Creates a link that opens a published dashboard without logging in. Mount it to open it. */
+    ShareDialog: ComponentType<ShareDialogProps>;
     /** Navigation goes through these, so plugins don't depend on the Studio's router. */
     Link: ComponentType<StudioLinkProps>;
     useNavigate: () => StudioNavigate;

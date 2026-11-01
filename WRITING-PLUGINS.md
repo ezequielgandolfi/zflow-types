@@ -184,8 +184,8 @@ definePlugin({
 - **Settings:** the plugin's Studio page reads and writes them with `GET`/`PUT /api/plugins/:id/settings`. After
   saving, invalidate the `['options']` and `['issues']` queries. Keep secrets write-only with `settings.redact` (applied
   to everything sent back) and `settings.prepare` (fills in what the Studio left out from the saved settings, and generated values such as ids). `status()` is served at `/api/plugins/:id/status`.
-- **Storage:** `ctx.storage.table(name, { columns })` creates a table namespaced by the plugin (columns get added when
-  the schema grows), with `insert`, `rows`, `aggregate` (also over JSON paths), `delete(filter)` and `deleteBefore`;
+- **Storage:** `ctx.storage.table(name, { columns, indexes })` creates a table namespaced by the plugin (columns get
+  added when the schema grows; an index can be a list of columns, like `['topic', 'at']`), with `insert`, `rows`, `aggregate` (also over JSON paths), `delete(filter)` and `deleteBefore`;
   `drop(name)` deletes a table. `ctx.storage.of(pluginId)` gives the tables of a plugin yours depends on. A `key` in the schema makes `put(row)` replace the row with the same key columns. The
   Studio reads rows with `GET /api/plugins/:id/tables/:table/rows`. See `packages/plugins/mqtt` for a full example.
 - **Building on MQTT:** a plugin that depends on `mqtt` can get its service and host brokers of its own
@@ -289,7 +289,8 @@ export default defineStudioPlugin({
 - **Data:** read it from the REST API under `/api`. After changing a project's draft, invalidate `draftQueryKeys(id)`
   from studio-sdk so the project page refreshes its changes and issues.
 - **Studio host:** `studioHost()` gives the loaded plugins, the catalog manifests and Studio parts to reuse
-  (`Page`, `PageHeader`, `SettingsForm`, `Icon`, `EmptyState`, `useToast`, `SectionActions`) and its navigation. It's how the dashboards plugin finds every plugin's widgets.
+  (`Page`, `PageHeader`, `SettingsForm`, `Icon`, `FieldHint`, `EmptyState`, `useToast`, `SectionActions`,
+  `ShareDialog`) and its navigation. It's how the dashboards plugin finds every plugin's widgets.
 - **Page sections:** `sections` adds collapsible cards to core pages, by slot: `project` (after Runners, the
   component gets the `projectId`) and `admin` (after the Engine card). A section gives its `title`, `description` (shown on the Plugins page) and `icon`; the
   Studio renders the header and toggle (`ui/PluginSections.tsx`) and remembers each viewer's choice. Admin sections
@@ -363,8 +364,10 @@ export default defineStudioPlugin({ id: 'weather', dashboards: { widgets: { 'wea
 - **Sizes:** groups and widgets both use small, medium and large (`DashboardSize`), picked with a slider
   (`SizeSlider.tsx`). A group takes a third, half or all of the dashboard; every group is a 12-column grid, and a widget
   takes 3, 6 or 12 of those columns.
-- **Sharing:** `?fullscreen` on a dashboard's page covers the Studio with the dashboard, for TVs; browsers only
-  enter real full screen after a click.
+- **Sharing:** "Share" opens `studioHost().ShareDialog` (the Studio's `ui/ShareDialog.tsx`, on the generic
+  `ui/Dialog.tsx`), which creates a share link (`?share=<token>`) that opens the dashboard without logging in, covering
+  the Studio with it; browsers only enter real full screen after a click. Widgets on published dashboards load data
+  through the published widget's config, so share links never send a config of their own.
 - **Projects:** a dashboard that uses a widget makes the project require its plugin (and its template's plugin), like
   steps and runners do.
 

@@ -1,8 +1,8 @@
 export type ColumnType = 'text' | 'number' | 'json';
 export interface TableSchema {
     columns: Record<string, ColumnType>;
-    /** Columns to index, besides the timestamp. */
-    indexes?: string[];
+    /** Columns to index, besides the timestamp; a list indexes them together, like `['topic', 'at']`. */
+    indexes?: (string | string[])[];
     /** Columns that identify a row, so `put` replaces the row with the same values instead of adding one. */
     key?: string[];
 }
