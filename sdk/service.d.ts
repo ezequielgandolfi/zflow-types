@@ -18,6 +18,11 @@ export interface ServiceInstance {
     update?(settings: unknown): void | Promise<void>;
     /** Live state served to the Studio, e.g. connected devices. */
     status?(): unknown;
+    /**
+     * Details for the Admin page's diagnostics file, for finding out why something fails on someone else's install:
+     * what the service knows about its connections and devices. Never include secrets.
+     */
+    diagnose?(): unknown;
     /** Operations studio-server asks the engine to run, such as a widget's action publishing a message. */
     commands?: Record<string, (input: unknown) => unknown>;
     /** Called after a project is deleted; its project tables are already gone. */

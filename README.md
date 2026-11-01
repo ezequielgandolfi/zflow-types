@@ -23,9 +23,9 @@ against zflow's own copy of `@zflow/sdk`, so the copy here is only for writing, 
    private repos.
 2. Rename it: `name` and `description` in `package.json`; the plugin's `id`, `name` and `description` in
    `src/index.ts`; the step ids (`hello.greet`) and the Studio page's id and paths in `src/studio.tsx`.
-3. Run `npm install` (pnpm works too). The `@zflow/*` packages come from this repo's release `v0.1.2`:
+3. Run `npm install` (pnpm works too). The `@zflow/*` packages come from this repo's release `v0.1.3`:
    ```json
-   "@zflow/sdk": "https://github.com/ezequielgandolfi/zflow-types/releases/download/v0.1.2/zflow-sdk-0.1.2.tgz"
+   "@zflow/sdk": "https://github.com/ezequielgandolfi/zflow-types/releases/download/v0.1.3/zflow-sdk-0.1.3.tgz"
    ```
 4. Write the plugin, following [WRITING-PLUGINS.md](WRITING-PLUGINS.md), and check it with `npm run typecheck`.
 
@@ -74,7 +74,7 @@ dependency goes in the plugin's `dependencies` and gets bundled in.
 ```json
 {
   "zflow": {
-    "sdk": "^0.1.2",
+    "sdk": "^0.1.3",
     "sources": { "geo": "github:someone/zflow-geo" }
   }
 }
@@ -127,7 +127,7 @@ folder that holds the plugin's folder.
   "name": "Weather",
   "version": "1.2.0",
   "description": "Adds steps that look up the weather",
-  "sdk": "^0.1.2",
+  "sdk": "^0.1.3",
   "main": "index.js",
   "studio": "studio.js",
   "dependencies": { "templates": "0.1.0", "geo": "1.0.0" },

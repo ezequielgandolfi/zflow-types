@@ -184,6 +184,9 @@ definePlugin({
 - **Settings:** the plugin's Studio page reads and writes them with `GET`/`PUT /api/plugins/:id/settings`. After
   saving, invalidate the `['options']` and `['issues']` queries. Keep secrets write-only with `settings.redact` (applied
   to everything sent back) and `settings.prepare` (fills in what the Studio left out from the saved settings, and generated values such as ids). `status()` is served at `/api/plugins/:id/status`.
+- **Diagnostics:** `diagnose()` returns what the service knows (connections, devices with their current state, recent
+  failures) for the Admin page's diagnostics file, a JSON file the admin saves to report a problem. It may be async;
+  the engine gives it 10 seconds and shows its error instead when it fails. Leave out secrets and recorded data.
 - **Storage:** `ctx.storage.table(name, { columns, indexes })` creates a table namespaced by the plugin (columns get
   added when the schema grows; an index can be a list of columns, like `['topic', 'at']`), with `insert`, `rows`, `aggregate` (also over JSON paths), `delete(filter)` and `deleteBefore`;
   `drop(name)` deletes a table. `ctx.storage.of(pluginId)` gives the tables of a plugin yours depends on. A `key` in the schema makes `put(row)` replace the row with the same key columns. The
