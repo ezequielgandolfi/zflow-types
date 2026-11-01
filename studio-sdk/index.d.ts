@@ -219,6 +219,17 @@ export interface StudioHost {
         title: string;
         children: ReactNode;
     }>;
+    /**
+     * A card the viewer can collapse, remembered under `storageKey`; the body unmounts while collapsed. Header buttons go
+     * inside `SectionActions`.
+     */
+    CollapsibleCard: ComponentType<{
+        storageKey: string;
+        title: string;
+        icon: string;
+        collapsed?: boolean | undefined;
+        children: ReactNode;
+    }>;
     Icon: ComponentType<{
         name: string | undefined;
         size?: number;

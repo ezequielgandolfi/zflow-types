@@ -7,7 +7,8 @@
 > here, and `template/` is the example to start from.
 
 Start by copying `template/`. To write one in its own repo and publish it so others install it from the
-Plugins page, see [the plugin kit](README.md). A plugin is a folder whose `package.json` `main` points at a
+Plugins page, see [the plugin kit](README.md); what built-in plugins offer to build on is in
+[BUILT-IN-PLUGINS.md](BUILT-IN-PLUGINS.md). A plugin is a folder whose `package.json` `main` points at a
 module whose default export is a `definePlugin(...)`:
 
 ```ts
@@ -211,6 +212,10 @@ definePlugin({
   coordinator decides which devices are paired and the registry keeps names and state: on start only listed devices
   are updated, and `status()` reports listed devices the network lacks (`missing`) and paired ones that aren't listed
   (`unlisted`), for the page to remove or add back. `forget` drops a device from the list even with the network off.
+- **Google Home:** the plugin serves Google's account linking and fulfillment on its own listener, bound to
+  127.0.0.1 and exposed through Tailscale Funnel, so the Studio is never public. Linking asks for a short code from
+  the Studio instead of the admin password; tokens are stored hashed. Only shared devices answer QUERY and EXECUTE,
+  and changes reach Google through HomeGraph (Report State, Request Sync) with the uploaded service account key.
 - **Project storage:** `ctx.storage.project(projectId)` gives the plugin's tables for one project (runners get theirs
   as `ctx.storage`). Deleting a project drops every plugin's tables for it (`dropProjectTables` in the store), without
   asking the plugins, so keep per-project data there rather than keyed by project id in a plugin table.
@@ -292,8 +297,8 @@ export default defineStudioPlugin({
 - **Data:** read it from the REST API under `/api`. After changing a project's draft, invalidate `draftQueryKeys(id)`
   from studio-sdk so the project page refreshes its changes and issues.
 - **Studio host:** `studioHost()` gives the loaded plugins, the catalog manifests and Studio parts to reuse
-  (`Page`, `PageHeader`, `SettingsForm`, `Icon`, `FieldHint`, `EmptyState`, `useToast`, `SectionActions`,
-  `ShareDialog`) and its navigation. It's how the dashboards plugin finds every plugin's widgets.
+  (`Page`, `PageHeader`, `SettingsForm`, `CollapsibleCard`, `Icon`, `FieldHint`, `EmptyState`, `useToast`,
+  `SectionActions`, `ShareDialog`) and its navigation. It's how the dashboards plugin finds every plugin's widgets.
 - **Page sections:** `sections` adds collapsible cards to core pages, by slot: `project` (after Runners, the
   component gets the `projectId`) and `admin` (after the Engine card). A section gives its `title`, `description` (shown on the Plugins page) and `icon`; the
   Studio renders the header and toggle (`ui/PluginSections.tsx`) and remembers each viewer's choice. Admin sections
