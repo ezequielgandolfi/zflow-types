@@ -15,6 +15,8 @@ export interface PropertySchema {
     optionsDependOn?: string[];
     readOnly?: boolean;
     required?: boolean;
+    /** Hidden in captured runs, for settings such as tokens or authorization headers. */
+    secret?: boolean;
     /** The settings of each row of a `list`, whose value is an array of objects. */
     items?: Record<string, PropertySchema>;
     /** Shows the setting in the Studio only while each named sibling setting holds one of the listed values. */

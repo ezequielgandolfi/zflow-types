@@ -108,6 +108,8 @@ export const forecast = defineComponent({
   (`CSS_COLORS` in the SDK), `format: 'duration'` on a number of milliseconds for an amount and a unit
   (`ui/DurationField.tsx`), and `format: 'transform'` on an `any` setting for an optional transform over the widget's
   value (`TransformField` in `ValueEditor.tsx`; its settings can only read `WIDGET_VALUE`).
+- **Secret settings:** `secret: true` on a property (passwords, tokens, request headers) hides its value in captured
+  runs.
 - **Setting groups:** `group: '<title>'` on a property puts it in a collapsible section of `SettingsForm`, after the
   ungrouped ones and closed until opened. Plugin pages build their own with `studioHost().SettingsGroup` (the
   dashboard editor's "Size").
