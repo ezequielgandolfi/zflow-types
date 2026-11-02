@@ -165,7 +165,7 @@ export interface PageHeaderProps {
         to: string;
         label: string;
     };
-    /** Buttons and chips on the right of the bar. */
+    /** Buttons and chips on the right of the bar; on phones they're listed in a "…" menu, `Menu`s inside included. */
     actions?: ReactNode;
 }
 export interface PageProps extends PageHeaderProps {
@@ -198,6 +198,18 @@ export type StudioSession = {
     dashboardId: string;
     allowActions: boolean;
 };
+export interface DataTableColumn<Row> {
+    label: string;
+    /** Right-aligned, for numbers. */
+    numeric?: boolean;
+    render: (row: Row) => ReactNode;
+}
+/** A table on wide screens and a card per row on phones, with the first column as the card's title. */
+export interface DataTableProps<Row> {
+    columns: DataTableColumn<Row>[];
+    rows: Row[];
+    rowKey: (row: Row) => string;
+}
 export interface ShareDialogProps {
     projectId: string;
     dashboardId: string;
@@ -251,6 +263,14 @@ export interface StudioHost {
     }>;
     /** Creates a link that opens a published dashboard without logging in. Mount it to open it. */
     ShareDialog: ComponentType<ShareDialogProps>;
+    /** A row's buttons, in a line on wide screens and in a "…" menu on phones. */
+    RowActions: ComponentType<{
+        label?: string;
+        children: ReactNode;
+    }>;
+    DataTable: <Row>(props: DataTableProps<Row>) => ReactNode;
+    /** Whether the window is phone-sized (720px or less), for layouts the shared styles can't adapt on their own. */
+    useNarrowScreen: () => boolean;
     /** Navigation goes through these, so plugins don't depend on the Studio's router. */
     Link: ComponentType<StudioLinkProps>;
     useNavigate: () => StudioNavigate;

@@ -293,12 +293,12 @@ export default defineStudioPlugin({
   (`ui/navigation.tsx` wraps it).
 - **Layout:** wrap a page in `studioHost().Page` (title, optional `back` and `actions`) so it gets the Studio's header bar.
 - **Styling:** pages render inside the Studio layout and can use its classes (`card`, `field`,
-  `field-label`, `input`, `button`, `button-primary`, `chip`, `list`, `list-row`…).
+  `field-label`, `input`, `button`, `button-primary`, `chip`, `list`, `list-row`…), which already wrap on phones.
 - **Data:** read it from the REST API under `/api`. After changing a project's draft, invalidate `draftQueryKeys(id)`
   from studio-sdk so the project page refreshes its changes and issues.
 - **Studio host:** `studioHost()` gives the loaded plugins, the catalog manifests and Studio parts to reuse
   (`Page`, `PageHeader`, `SettingsForm`, `CollapsibleCard`, `Icon`, `FieldHint`, `EmptyState`, `useToast`,
-  `SectionActions`, `ShareDialog`) and its navigation. It's how the dashboards plugin finds every plugin's widgets.
+  `SectionActions`, `ShareDialog`, `RowActions`, `DataTable`, `useNarrowScreen`) and its navigation. It's how the dashboards plugin finds every plugin's widgets.
 - **Page sections:** `sections` adds collapsible cards to core pages, by slot: `project` (after Runners, the
   component gets the `projectId`) and `admin` (after the Engine card). A section gives its `title`, `description` (shown on the Plugins page) and `icon`; the
   Studio renders the header and toggle (`ui/PluginSections.tsx`) and remembers each viewer's choice. Admin sections
