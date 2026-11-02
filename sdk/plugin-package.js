@@ -1,5 +1,5 @@
 /** Version of the plugin contract in this SDK; a plugin package's `sdk` range must accept it. */
-export const SDK_VERSION = '0.1.5';
+export const SDK_VERSION = '0.1.6';
 /** File at the root of a plugin package describing it. */
 export const PLUGIN_PACKAGE_MANIFEST = 'zflow-plugin.json';
 /** Name of the release asset holding a plugin package (a gzipped tarball). */

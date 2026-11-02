@@ -81,6 +81,8 @@ export const forecast = defineComponent({
   - `ctx.vars` and `ctx.globals` are the local and runner-wide variables.
   - `ctx.memory` is the step's own store, kept between runs (per runner, like globals). Steps that compare with
     earlier runs, like "Only when changed", use it.
+  - `ctx.storage` is the step's plugin's tables for the project, for state shared between steps or kept across
+    restarts (core's Cooldown). It throws when the automation runs outside a project.
   - `ctx.signal` aborts when the run stops or times out. Pass it to anything that can be slow.
   - `ctx.logger` writes to the engine's log, tagged with the automation, the step and the run.
   - `ctx.project` is the project running the automation (`id`, `name`); undefined when it runs on its own, as in tests.
@@ -103,7 +105,8 @@ export const forecast = defineComponent({
   with `anyAutomation: true`; forms outside the editor pass the choices to `SettingsForm` as `automations`), and
   `format: 'icon'` for a picker of the Lucide icons the Studio ships with (`ui/IconField.tsx`, from `lucide-react`'s
   `iconNames`, so there's no list to maintain), `format: 'color'` for a picker of the CSS named colors
-  (`CSS_COLORS` in the SDK), and `format: 'transform'` on an `any` setting for an optional transform over the widget's
+  (`CSS_COLORS` in the SDK), `format: 'duration'` on a number of milliseconds for an amount and a unit
+  (`ui/DurationField.tsx`), and `format: 'transform'` on an `any` setting for an optional transform over the widget's
   value (`TransformField` in `ValueEditor.tsx`; its settings can only read `WIDGET_VALUE`).
 - **Setting groups:** `group: '<title>'` on a property puts it in a collapsible section of `SettingsForm`, after the
   ungrouped ones and closed until opened. Plugin pages build their own with `studioHost().SettingsGroup` (the
@@ -204,6 +207,10 @@ definePlugin({
   reads them with `listDevices`/`findDevice` over `storage.of('iot')`. Steps come in pairs: pickers ("Get device",
   "Set device") and "… by id" ones whose device and property can come from other steps. The project page doesn't
   list devices for now; `ProjectDevices` in its studio module is ready to become a `project` section again.
+- **Building on notifications:** a plugin that sends notifications depends on `notify` and, from its service's
+  `start()`, calls `registerChannel('<plugin id>.<channel>', { label, send })`, keeping the function it returns to
+  unregister in `stop()`. The notify service records the channels in its `channels` table for the Studio's pickers,
+  applies the hourly cap and records deliveries; `send` only delivers to one recipient or throws.
 - **Zigbee:** the service never throws on start, so its commands (like listing serial ports) work without a
   coordinator; failures show in `status()`. Readings are published on `zigbee/<ieee>` to an in-process broker it hosts
   through mqtt, which records them into `zigbee__readings` for the history widgets and the device page. herdsman and

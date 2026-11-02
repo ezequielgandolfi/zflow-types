@@ -24,10 +24,10 @@ export interface PropertySchema {
     /** Asks the Studio for a specialised editor; the value is still a plain `type` value. */
     /**
      * `automation` is a string holding the id of an automation that other automations can start, and `icon` a string
-     * holding a Lucide icon name (kebab-case), `color` a string holding a CSS named color, and `transform` an `any`
-     * holding a `TransformValue` that widgets apply to their data's value.
+     * holding a Lucide icon name (kebab-case), `color` a string holding a CSS named color, `transform` an `any`
+     * holding a `TransformValue` that widgets apply to their data's value, and `duration` a number of milliseconds.
      */
-    format?: 'cron' | 'automation' | 'icon' | 'color' | 'transform';
+    format?: 'cron' | 'automation' | 'icon' | 'color' | 'transform' | 'duration';
     /** Lets a `format: 'automation'` setting pick any automation, not only those other automations can start. */
     anyAutomation?: boolean;
 }

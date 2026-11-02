@@ -2,7 +2,7 @@
 
 Some built-in plugins offer things meant for other plugins: services to call, tables to read, choices for settings
 and widget templates. This guide lists them and shows how to use them. Every other built-in (Core, Math, Text, Date &
-time, HTTP, Scheduler, API server, Core widgets, Weather, Zigbee, Google Home, Custom actions) only adds steps,
+time, HTTP, Scheduler, API server, Core widgets, Weather, Zigbee, Google Home, Twilio, Custom actions) only adds steps,
 runners, widgets and pages for people building automations, so plugins have nothing to call there.
 
 | Plugin id    | Use it to                                                                      | Version |
@@ -11,6 +11,7 @@ runners, widgets and pages for people building automations, so plugins have noth
 | `mqtt`       | Host MQTT brokers, subscribe, publish and record topics into tables            | 0.1.0   |
 | `iot`        | Bring devices from any ecosystem, or read and control the devices others bring | 0.1.0   |
 | `dashboards` | Run a project's widget actions and change its dashboard values                 | 0.1.0   |
+| `notify`     | Add a channel notifications are sent through, like SMS or a chat app           | 0.1.0   |
 
 ## Using another plugin
 
@@ -250,3 +251,34 @@ await ctx.command('set', { project: ctx.project.id, name, value }, 'dashboards')
   Forms in your own pages pass `projectId` to `SettingsForm` so these can load.
 - The commands fail with "The project's dashboard runner isn't running" until the project has one and is published;
   show that error to the viewer.
+
+## Notifications (`notify`)
+
+A project declares its notifications on its Notifications runner (who gets each one, and through which channel), and
+automations send them with the "Send notification" step. A channel is how they're delivered; add one from your
+service:
+
+```ts
+interface NotifyChannel {
+  /** Shown in the notification's channel picker, like "SMS (Twilio)". */
+  label: string;
+  /** Sends to one recipient; throws with a message saying what's wrong and how to fix it. */
+  send(message: { to: string; text: string }, signal: AbortSignal): Promise<void>;
+}
+
+interface NotifyService {
+  /** Returns the call that removes the channel. */
+  registerChannel(id: string, channel: NotifyChannel): () => void;
+}
+
+// In your service's start(), with stop() calling what it returned:
+this.unregister = ctx.service<NotifyService>('notify').registerChannel('chat.message', { label: 'Chat', send });
+```
+
+- **Ids:** prefix the channel id with your plugin id. Projects store it, so keep it stable.
+- **Recipients** are what the notification's "To" lists, separated by commas, so check their format in `send`.
+- The notify service applies the hourly cap and the notification's own limit, and records every delivery in the
+  project's `deliveries` table (`{ notification, channel, to, message, status, error, at }`, `status` being `sent`,
+  `failed` or `limited`). Your channel only delivers.
+- **Settings choices:** `optionsFrom: 'notify.notifications'` lists the project's notifications (`projectOptions`), and
+  `'notify.channels'` the channels.

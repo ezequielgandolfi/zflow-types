@@ -3,6 +3,7 @@ import type { PropertySchema } from './properties.js';
 import type { RunResult } from './run.js';
 import type { RunAutomationOptions } from './runner.js';
 import type { ServiceInstance } from './service.js';
+import type { TableStorage } from './storage.js';
 export declare const DEFAULT_OUTPUT = "ok";
 export declare const ERROR_OUTPUT = "error";
 export type InputMode = 'none' | 'single' | 'multi';
@@ -29,6 +30,8 @@ export interface ComponentContext {
     readonly globals: VarStore;
     /** This step's own values, kept between runs (per runner) like globals; for steps that compare with earlier runs. */
     readonly memory: VarStore;
+    /** The step's plugin's tables for the project; throws on use when the automation runs outside a project. */
+    readonly storage: TableStorage;
     readonly signal: AbortSignal;
     /** Tagged with the automation, the step and the run. */
     readonly logger: Logger;
