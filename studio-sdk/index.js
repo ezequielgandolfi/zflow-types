@@ -10,6 +10,10 @@ export function studioHost() {
         throw new Error('The Studio host is only available while the Studio renders');
     return host;
 }
+/** A part another plugin shares (`parts` in its Studio module), or undefined when that plugin's module isn't loaded. */
+export function studioPart(pluginId, name) {
+    return studioHost().plugins.find((plugin) => plugin.id === pluginId)?.parts?.[name];
+}
 /** Query keys of the Studio's project data; invalidate `draftQueryKeys` after changing a project's draft. */
 export const queryKeys = {
     catalog: ['catalog'],

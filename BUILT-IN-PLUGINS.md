@@ -229,6 +229,32 @@ export interface IotService {
   `range` being `{ minutes }` or `{ from, to }`; returns `{ points, min, max }` for the series template), `activity`
   (`{ device, property, limit?, projectId? }`; returns timeline entries) and `purge` (`{ device, projectId? }`, which
   deletes the history and keeps the state).
+- **Device page:** instead of a page of your own for each device, render the plugin's `DevicePage` part from your
+  route. It shows the device's state with controls for what can be changed, and its history and activity when you keep
+  history:
+
+  ```tsx
+  import { studioPart } from '@zflow/studio-sdk';
+
+  interface DevicePageProps {
+    device: string; // "<provider>:<externalId>"
+    projectId?: string; // for a device that only belongs to one project
+    back: { to: string; label: string };
+    refreshable?: boolean; // shows "Ask for its state", when your provider implements `refresh`
+    actions?: ReactNode; // more header buttons, your own
+    missing?: ReactNode; // shown when the device doesn't exist anymore, like where to pair it again
+  }
+
+  function WeatherDevicePage() {
+    const { id = '' } = studioHost().useRoute().params;
+    const DevicePage = studioPart<DevicePageProps>('iot', 'DevicePage');
+    return DevicePage && <DevicePage device={`weather:${id}`} back={{ to: '/weather', label: 'Weather' }} />;
+  }
+  ```
+
+  It reads and writes through the plugin's actions, which your page can use too: `device` (`{ device, projectId? }`,
+  null when it's gone), `set` (`{ device, values, projectId? }`) and `refresh` (`{ device, projectId? }`).
+
 - **Reading outside the engine:** studio-server code (widget `data()`, plugin actions) has no services; read the
   registry's `devices` table with `ctx.storage.of('iot').table('devices')` (one row per device, keyed by `provider` and
   `externalId`, with `state` and `capabilities` as JSON). A project's own devices are in

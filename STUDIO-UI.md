@@ -201,6 +201,13 @@ Put a `title` on a chip whose state has more to say (the error behind "Failed").
 - Name a widget's own classes after the plugin (`weather-map-…`) so they never clash with the Studio's or another
   plugin's.
 
+## Parts of other plugins
+
+- A plugin's Studio module can share components in `parts`; render them with `studioPart<Props>(pluginId, name)`
+  and depend on that plugin. Check for undefined, since its module may fail to load, and say which plugin is missing.
+- The Devices plugin shares `DevicePage`, a device's whole page (see `BUILT-IN-PLUGINS.md`), so plugins that bring
+  devices don't build their own.
+
 ## CSS variables
 
 | Variable                                              | For                                                      |

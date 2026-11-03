@@ -314,6 +314,9 @@ export default defineStudioPlugin({
   `Dialog`, `SearchSelect`) and its navigation. It's how the dashboards plugin finds every plugin's widgets. How plugin
   pages should use them and the Studio's classes is in `plugin-kit/STUDIO-UI.md`: keep it current when a shared part
   or class changes, and share a Studio part there when plugin pages would otherwise copy its markup.
+- **Plugin parts:** a Studio module shares components with other plugins' pages in `parts` (the Devices plugin's
+  `DevicePage`); they render it with `studioPart<Props>(pluginId, name)` from studio-sdk, since modules can't import
+  each other. Its props are a contract like the SDK's: document them in `plugin-kit/BUILT-IN-PLUGINS.md`.
 - **Page sections:** `sections` adds collapsible cards to core pages, by slot: `project` (after Runners, the
   component gets the `projectId`) and `admin` (after the Engine card). A section gives its `title`, `description` (shown on the Plugins page) and `icon`; the
   Studio renders the header and toggle (`ui/PluginSections.tsx`) and remembers each viewer's choice. Admin sections

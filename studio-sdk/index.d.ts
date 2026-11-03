@@ -139,6 +139,8 @@ export interface StudioPlugin {
         /** Components of the plugin's widget templates, keyed by the template id declared in its `definePlugin`. */
         templates?: Record<string, ComponentType<TemplateProps<never>>>;
     };
+    /** Components for other plugins' pages to render, like the Devices plugin's device page; see `studioPart`. */
+    parts?: Record<string, ComponentType<never>>;
 }
 export declare const defineStudioPlugin: (plugin: StudioPlugin) => StudioPlugin;
 export interface SettingsFormProps {
@@ -357,6 +359,8 @@ export interface StudioHost {
 /** Set once by the Studio before it renders, after every plugin module has loaded. */
 export declare function publishStudioHost(host: StudioHost): void;
 export declare function studioHost(): StudioHost;
+/** A part another plugin shares (`parts` in its Studio module), or undefined when that plugin's module isn't loaded. */
+export declare function studioPart<Props>(pluginId: string, name: string): ComponentType<Props> | undefined;
 /** Query keys of the Studio's project data; invalidate `draftQueryKeys` after changing a project's draft. */
 export declare const queryKeys: {
     catalog: readonly ["catalog"];
