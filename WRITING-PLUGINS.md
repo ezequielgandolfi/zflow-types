@@ -217,8 +217,8 @@ definePlugin({
   unregister in `stop()`. The notify service records the channels in its `channels` table for the Studio's pickers,
   applies the hourly cap and records deliveries; `send` only delivers to one recipient or throws.
 - **Zigbee:** the service never throws on start, so its commands (like listing serial ports) work without a
-  coordinator; failures show in `status()`. Its readings are kept by the Devices history, for as long as its settings say;
-  it depends on `mqtt` only to move readings recorded before into it (`zigbee__readings`, once). herdsman and
+  coordinator; failures show in `status()`. Its readings are kept by the Devices history, for as long as its settings say.
+  herdsman and
   serialport load lazily (serialport's native build is allowed in `pnpm-workspace.yaml`); `ZIGBEE_SIMULATOR=1 pnpm dev`
   swaps in a simulated network whose devices join while the network is open. Service tests inject a network. The
   coordinator decides which devices are paired and the registry keeps names and state: on start only listed devices
