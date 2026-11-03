@@ -236,12 +236,15 @@ export interface IotService {
   ```tsx
   import { studioPart } from '@zflow/studio-sdk';
 
+  type DeviceContent = ReactNode | ((device: Device) => ReactNode); // a function gets the loaded device
+
   interface DevicePageProps {
     device: string; // "<provider>:<externalId>"
     projectId?: string; // for a device that only belongs to one project
     back: { to: string; label: string };
     refreshable?: boolean; // shows "Ask for its state", when your provider implements `refresh`
-    actions?: ReactNode; // more header buttons, your own
+    actions?: DeviceContent; // more header buttons, your own
+    sections?: { before?: DeviceContent; after?: DeviceContent }; // above the state, or below the history
     missing?: ReactNode; // shown when the device doesn't exist anymore, like where to pair it again
   }
 
@@ -251,6 +254,10 @@ export interface IotService {
     return DevicePage && <DevicePage device={`weather:${id}`} back={{ to: '/weather', label: 'Weather' }} />;
   }
   ```
+
+  Your sections render in the page as they are, so give them the Studio's `section` markup. Return a component from
+  a function (`(device) => <CentralSection device={device} />`) rather than calling hooks in it, since it only runs
+  once the device has loaded.
 
   It reads and writes through the plugin's actions, which your page can use too: `device` (`{ device, projectId? }`,
   null when it's gone), `set` (`{ device, values, projectId? }`) and `refresh` (`{ device, projectId? }`).
