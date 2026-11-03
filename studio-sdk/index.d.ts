@@ -210,6 +210,63 @@ export interface DataTableProps<Row> {
     rows: Row[];
     rowKey: (row: Row) => string;
 }
+export interface FieldProps {
+    label: string;
+    /** Help shown as a tooltip on an info icon beside the label. */
+    hint?: string | undefined;
+    required?: boolean;
+    /** A short line under the control, for a state such as "Connected"; `error` replaces it. */
+    help?: ReactNode;
+    error?: string | undefined;
+    /** Takes a whole row of a `settings-form` (a list, a long text). */
+    wide?: boolean;
+    /** The control; as a function, it gets the id that links it to the label. */
+    children: ReactNode | ((id: string) => ReactNode);
+}
+export interface SwitchProps {
+    id?: string;
+    checked: boolean;
+    onChange: (checked: boolean) => void;
+    disabled?: boolean;
+    /** The text beside it when on and off; "On" and "Off" by default. */
+    labels?: [on: string, off: string];
+}
+export interface MenuItemProps {
+    icon: string;
+    children: ReactNode;
+    /** For actions that delete or can't be undone. */
+    danger?: boolean;
+    disabled?: boolean;
+    onClick?: () => void;
+    /** Makes the item a link, such as a download. */
+    href?: string;
+    download?: boolean;
+}
+export interface SearchOption {
+    value: string;
+    label: string;
+    description?: string;
+    /** Options with a group are listed under its name. */
+    group?: string;
+    icon?: string;
+    /** A CSS color shown as a swatch instead of the icon. */
+    swatch?: string;
+}
+export interface SearchSelectProps {
+    id?: string;
+    value: string;
+    options: SearchOption[];
+    /** Names the control for screen readers. */
+    label: string;
+    /** Shown when `value` isn't among the options. */
+    missingLabel?: string;
+    onChange: (value: string) => void;
+}
+export interface DialogProps {
+    title: string;
+    onClose: () => void;
+    children: ReactNode;
+}
 export interface ShareDialogProps {
     projectId: string;
     dashboardId: string;
@@ -269,6 +326,19 @@ export interface StudioHost {
         children: ReactNode;
     }>;
     DataTable: <Row>(props: DataTableProps<Row>) => ReactNode;
+    /** A labelled field for forms `SettingsForm` can't describe; place it inside a `settings-form`. */
+    Field: ComponentType<FieldProps>;
+    Switch: ComponentType<SwitchProps>;
+    /** A "…" button listing less common actions (`MenuItem`s); on phones, inside the header's menu, it lists them there. */
+    Menu: ComponentType<{
+        label: string;
+        children: ReactNode;
+    }>;
+    MenuItem: ComponentType<MenuItemProps>;
+    /** A modal over the page with a title and a close button; Esc and a click outside close it. Mount it to open it. */
+    Dialog: ComponentType<DialogProps>;
+    /** A dropdown with a filter and keyboard navigation, for lists too long for a plain `<select>`. */
+    SearchSelect: ComponentType<SearchSelectProps>;
     /** Whether the window is phone-sized (720px or less), for layouts the shared styles can't adapt on their own. */
     useNarrowScreen: () => boolean;
     /** Navigation goes through these, so plugins don't depend on the Studio's router. */

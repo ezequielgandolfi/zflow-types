@@ -307,7 +307,10 @@ export default defineStudioPlugin({
   from studio-sdk so the project page refreshes its changes and issues.
 - **Studio host:** `studioHost()` gives the loaded plugins, the catalog manifests and Studio parts to reuse
   (`Page`, `PageHeader`, `SettingsForm`, `CollapsibleCard`, `Icon`, `FieldHint`, `EmptyState`, `useToast`,
-  `SectionActions`, `ShareDialog`, `RowActions`, `DataTable`, `useNarrowScreen`) and its navigation. It's how the dashboards plugin finds every plugin's widgets.
+  `SectionActions`, `ShareDialog`, `RowActions`, `DataTable`, `useNarrowScreen`, `Field`, `Switch`, `Menu`, `MenuItem`,
+  `Dialog`, `SearchSelect`) and its navigation. It's how the dashboards plugin finds every plugin's widgets. How plugin
+  pages should use them and the Studio's classes is in `plugin-kit/STUDIO-UI.md`: keep it current when a shared part
+  or class changes, and share a Studio part there when plugin pages would otherwise copy its markup.
 - **Page sections:** `sections` adds collapsible cards to core pages, by slot: `project` (after Runners, the
   component gets the `projectId`) and `admin` (after the Engine card). A section gives its `title`, `description` (shown on the Plugins page) and `icon`; the
   Studio renders the header and toggle (`ui/PluginSections.tsx`) and remembers each viewer's choice. Admin sections

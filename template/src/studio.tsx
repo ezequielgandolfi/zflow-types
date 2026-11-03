@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { greet, type GreetingStyle } from './greeting.ts';
 
 function HelloPage() {
-  const { Page, Link } = studioHost();
+  const { Page, Field, Link } = studioHost();
   const [name, setName] = useState('');
   const [style, setStyle] = useState<GreetingStyle>('friendly');
   // Runs on the Studio's own QueryClient, since react-query is shared with the Studio.
@@ -26,26 +26,22 @@ function HelloPage() {
     >
       <div className="card">
         <div className="settings-form">
-          <div className="field">
-            <label className="field-label" htmlFor="hello-name">
-              Name
-            </label>
-            <input id="hello-name" className="input" value={name} onChange={(event) => setName(event.target.value)} />
-          </div>
-          <div className="field">
-            <label className="field-label" htmlFor="hello-style">
-              Style
-            </label>
-            <select
-              id="hello-style"
-              className="input"
-              value={style}
-              onChange={(event) => setStyle(event.target.value as GreetingStyle)}
-            >
-              <option value="friendly">Friendly</option>
-              <option value="formal">Formal</option>
-            </select>
-          </div>
+          <Field label="Name" hint="Who the greeting is for">
+            {(id) => <input id={id} className="input" value={name} onChange={(event) => setName(event.target.value)} />}
+          </Field>
+          <Field label="Style">
+            {(id) => (
+              <select
+                id={id}
+                className="input"
+                value={style}
+                onChange={(event) => setStyle(event.target.value as GreetingStyle)}
+              >
+                <option value="friendly">Friendly</option>
+                <option value="formal">Formal</option>
+              </select>
+            )}
+          </Field>
         </div>
         <p aria-live="polite">
           <strong>{greet(name, style)}</strong>
