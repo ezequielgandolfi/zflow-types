@@ -68,7 +68,7 @@ passes the viewer's range to `data()` as `ctx.range`; turn it into timestamps wi
 ## MQTT (`mqtt`)
 
 The MQTT plugin hosts brokers inside the engine. People configure theirs on the MQTT page, and your plugin can host
-its own (the Zigbee plugin hosts one for its readings). From your service, steps or runner:
+its own, which only lives in the engine unless you give it a port. From your service, steps or runner:
 
 ```ts
 export type MqttEvent =
@@ -185,6 +185,7 @@ export interface IotService {
     provider: {
       write(device: Device, values: Record<string, unknown>): Promise<void> | void; // values already checked
       refresh?(device: Device): Promise<void> | void;
+      history?: { days?: number }; // keeps what devices report, for `days` (forever without), for the history widgets
     },
   ): () => void;
   /** Adds the device, or updates what you know about it; its name and state are kept. */
@@ -201,6 +202,7 @@ export interface IotService {
     report: { state?: Record<string, unknown>; online?: boolean; at?: number },
     projectId?: string,
   ): Device | undefined;
+  /** Removes the device along with its history. */
   remove(provider: string, externalId: string, projectId?: string): void;
 
   // Using devices
@@ -220,6 +222,13 @@ export interface IotService {
 - **Providers:** register in your service's `start()`, then `upsert` each device you know and `report` what devices
   send. Devices are global unless you pass a project id, which keeps them in that project's tables (and they go when
   the project is deleted). Map your ecosystem's values to capabilities once, as Zigbee does with its exposes.
+- **History:** register with `history` and every report with a state is kept, so the Device history (a chart) and
+  Device activity (the latest values) widgets work for your devices with nothing more. Register again with the new
+  `days` when your settings change. Your page reads it with the plugin's actions
+  (`POST /api/plugins/iot/actions/<name>` with `{ input }`): `history` (`{ device, property, range, projectId? }`,
+  `range` being `{ minutes }` or `{ from, to }`; returns `{ points, min, max }` for the series template), `activity`
+  (`{ device, property, limit?, projectId? }`; returns timeline entries) and `purge` (`{ device, projectId? }`, which
+  deletes the history and keeps the state).
 - **Reading outside the engine:** studio-server code (widget `data()`, plugin actions) has no services; read the
   registry's `devices` table with `ctx.storage.of('iot').table('devices')` (one row per device, keyed by `provider` and
   `externalId`, with `state` and `capabilities` as JSON). A project's own devices are in

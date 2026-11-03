@@ -202,11 +202,14 @@ definePlugin({
   (`record`, `unrecord`, `purge`). They're kept out of the MQTT settings and pickers, and the MQTT page lists them
   read-only. The owner calls them again on each start, since the MQTT service doesn't keep them.
 - **Building on IoT (devices):** a plugin that brings devices depends on `iot` and, from its service, calls
-  `registerProvider(pluginId, { write, refresh? })`, then `upsert` for each device (in the standard `Device` format:
-  type and `capabilities`) and `report` for what devices send. Reads come from the registry, so steps and widgets
-  never reach the provider; writes are checked against the capabilities (`coerceWrite`) and proxied to `write`.
+  `registerProvider(pluginId, { write, refresh?, history? })`, then `upsert` for each device (in the standard `Device`
+  format: type and `capabilities`) and `report` for what devices send. Reads come from the registry, so steps and
+  widgets never reach the provider; writes are checked against the capabilities (`coerceWrite`) and proxied to `write`.
   Devices are global unless upserted with a project id, which keeps them in that project's tables. Studio-side code
-  reads them with `listDevices`/`findDevice` over `storage.of('iot')`. Steps come in pairs: pickers ("Get device",
+  reads them with `listDevices`/`findDevice` over `storage.of('iot')`. With `history` (`{ days? }`, registered again
+  when it changes), each report's state is kept in the `readings` table of the device's scope, pruned at most hourly
+  as readings arrive and dropped with the device; the Device history and Device activity widgets and the `history`,
+  `activity` and `purge` actions read it, so provider pages draw it without tables of their own. Steps come in pairs: pickers ("Get device",
   "Set device") and "… by id" ones whose device and property can come from other steps. The project page doesn't
   list devices for now; `ProjectDevices` in its studio module is ready to become a `project` section again.
 - **Building on notifications:** a plugin that sends notifications depends on `notify` and, from its service's
@@ -214,8 +217,8 @@ definePlugin({
   unregister in `stop()`. The notify service records the channels in its `channels` table for the Studio's pickers,
   applies the hourly cap and records deliveries; `send` only delivers to one recipient or throws.
 - **Zigbee:** the service never throws on start, so its commands (like listing serial ports) work without a
-  coordinator; failures show in `status()`. Readings are published on `zigbee/<ieee>` to an in-process broker it hosts
-  through mqtt, which records them into `zigbee__readings` for the history widgets and the device page. herdsman and
+  coordinator; failures show in `status()`. Its readings are kept by the Devices history, for as long as its settings say;
+  it depends on `mqtt` only to move readings recorded before into it (`zigbee__readings`, once). herdsman and
   serialport load lazily (serialport's native build is allowed in `pnpm-workspace.yaml`); `ZIGBEE_SIMULATOR=1 pnpm dev`
   swaps in a simulated network whose devices join while the network is open. Service tests inject a network. The
   coordinator decides which devices are paired and the registry keeps names and state: on start only listed devices
