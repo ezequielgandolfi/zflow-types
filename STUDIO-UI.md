@@ -149,7 +149,9 @@ function WeatherPage() {
   and their button on one line (a quick add form).
 - **Controls:** `input` styles inputs, selects and textareas; `input-code` is monospaced, for code and JSON;
   `input-with-action` puts a button beside an input. Mark invalid inputs with `aria-invalid`.
-- **`Switch`** is the on/off toggle; never a bare checkbox.
+- **`Switch`** is the on/off toggle; never a bare checkbox. It shows "On"/"Off" beside it (`labels` changes them),
+  or fixed text as its children ("Show a border"). In a row with nothing beside it, pass `labels={false}` and a
+  `label` for screen readers ("Share Kitchen light"), plus a `title` saying why when it's disabled.
 - **`SearchSelect`** replaces a `<select>` whose list grows (one entry per device, per plugin): it has a filter and
   keyboard navigation, with optional groups, icons and color swatches.
 - **`SettingsGroup`** is a collapsible group of fields, closed until opened, for advanced settings.

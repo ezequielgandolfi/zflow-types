@@ -228,8 +228,14 @@ export interface SwitchProps {
     checked: boolean;
     onChange: (checked: boolean) => void;
     disabled?: boolean;
-    /** The text beside it when on and off; "On" and "Off" by default. */
-    labels?: [on: string, off: string];
+    /** Names it for screen readers when no label is beside it, as in a row of devices. */
+    label?: string;
+    /** Why it's disabled, or what it does, as a tooltip. */
+    title?: string | undefined;
+    /** The text beside it when on and off ("On" and "Off" by default); `false` shows none. */
+    labels?: [on: string, off: string] | false;
+    /** Text beside it that doesn't change with the state ("Show a border"), instead of `labels`. */
+    children?: ReactNode;
 }
 export interface MenuItemProps {
     icon: string;
