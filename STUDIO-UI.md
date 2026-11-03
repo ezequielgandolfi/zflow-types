@@ -23,6 +23,8 @@ function WeatherPage() {
 - **Phones:** below 720px the shared parts and classes adapt on their own (rows wrap, forms become one column, header
   actions go in a "…" menu). Check `useNarrowScreen()` only for layouts of your own that can't.
 - **Colors:** use the CSS variables below instead of hex values, so pages follow the Studio's theme.
+- **Ids:** create ids for new items with `randomId()` from `@zflow/studio-sdk`, not `crypto.randomUUID()`, which
+  browsers leave out when the Studio is opened over plain HTTP by its address on the network (from a phone).
 
 ## A page
 

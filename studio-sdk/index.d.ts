@@ -361,6 +361,11 @@ export declare function publishStudioHost(host: StudioHost): void;
 export declare function studioHost(): StudioHost;
 /** A part another plugin shares (`parts` in its Studio module), or undefined when that plugin's module isn't loaded. */
 export declare function studioPart<Props>(pluginId: string, name: string): ComponentType<Props> | undefined;
+/**
+ * A random UUID for new items. Use it instead of `crypto.randomUUID()`, which browsers only offer over HTTPS or on
+ * localhost, so it fails when the Studio is opened by its address on the network.
+ */
+export declare function randomId(): string;
 /** Query keys of the Studio's project data; invalidate `draftQueryKeys` after changing a project's draft. */
 export declare const queryKeys: {
     catalog: readonly ["catalog"];
@@ -371,7 +376,7 @@ export declare const queryKeys: {
     /** Choices of `optionsFrom` sources; plugin pages that change their settings invalidate `['options']`. */
     options: (projectId: string | undefined, source: string, values?: Record<string, unknown>) => readonly ["options", string, string, Record<string, unknown>];
 };
-export declare const draftQueryKeys: (projectId: string) => (readonly ["projects"] | readonly ["project", string] | readonly ["issues", string] | readonly ["changes", string] | string[])[];
+export declare const draftQueryKeys: (projectId: string) => (string[] | readonly ["projects"] | readonly ["project", string] | readonly ["issues", string] | readonly ["changes", string])[];
 /**
  * Modules a plugin's Studio code shares with the Studio instead of bundling its own copy, so hooks, routing and
  * queries use the same React tree. The Studio publishes them on `globalThis[SHARED_MODULES_GLOBAL]`.
