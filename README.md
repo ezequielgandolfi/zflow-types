@@ -86,7 +86,9 @@ dependency goes in the plugin's `dependencies` and gets bundled in.
 ```
 
 - `sdk`: the range of zflow's `SDK_VERSION` the plugin works with. When it's left out, it defaults to `^` the version
-  of `@zflow/sdk` you pack with. A zflow whose SDK is outside the range refuses to install the plugin.
+  of `@zflow/sdk` you pack with. A zflow whose SDK is outside the range refuses to install or update to that release,
+  and the Plugins page says so instead of offering the update. zflow reads `sdk` before the rest of the manifest, so
+  keep it a plain text even if the manifest's shape changes.
 - `sources`: for each dependency in `definePlugin({ dependencies })` that **isn't built into zflow**, the repo it's
   installed from. Built-in plugins (`core`, `templates`, `mqtt`, `iot`…) need no source. Installing your plugin also
   installs these, after showing them to the user.
