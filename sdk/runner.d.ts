@@ -1,4 +1,5 @@
 import type { ProjectInfo, Props } from './component.js';
+import type { EventRecorder } from './events.js';
 import type { Logger } from './logger.js';
 import type { PropertySchema } from './properties.js';
 import type { RunResult } from './run.js';
@@ -20,6 +21,8 @@ export interface RunnerContext {
     readonly config: Props;
     readonly bindings: readonly ResolvedBinding[];
     readonly logger: Logger;
+    /** Records what happened to the runner for the Admin page; also logged. */
+    readonly events: EventRecorder;
     readonly project: ProjectInfo;
     /** The runner's plugin's tables for this project, dropped with the project. */
     readonly storage: TableStorage;

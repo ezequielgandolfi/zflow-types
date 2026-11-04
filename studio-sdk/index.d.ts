@@ -200,6 +200,20 @@ export type StudioSession = {
     dashboardId: string;
     allowActions: boolean;
 };
+/** Lists the events of the engine and studio-server, newest first, updated as they happen. */
+export interface EventListProps {
+    /** Only events about one kind of thing (`device`, `project`…), or one of them with `objectId`. */
+    kind?: string;
+    objectId?: string;
+    /** Only events from `engine`, `studio` or a plugin id. */
+    source?: string;
+    /** Adds a filter by type. */
+    filters?: boolean;
+    /** How many show before "Show all"; 10 without it. */
+    shown?: number;
+    /** Said when there's none. */
+    empty?: string;
+}
 export interface DataTableColumn<Row> {
     label: string;
     /** Right-aligned, for numbers. */
@@ -334,6 +348,7 @@ export interface StudioHost {
         children: ReactNode;
     }>;
     DataTable: <Row>(props: DataTableProps<Row>) => ReactNode;
+    EventList: ComponentType<EventListProps>;
     /** A labelled field for forms `SettingsForm` can't describe; place it inside a `settings-form`. */
     Field: ComponentType<FieldProps>;
     Switch: ComponentType<SwitchProps>;

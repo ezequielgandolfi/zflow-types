@@ -230,9 +230,13 @@ export interface IotService {
   `range` being `{ minutes }` or `{ from, to }`; returns `{ points, min, max }` for the series template), `activity`
   (`{ device, property, limit?, projectId? }`; returns timeline entries) and `purge` (`{ device, projectId? }`, which
   deletes the history and keeps the state).
+- **Events:** the registry records when your devices are added, removed, go offline and come back. Record what only you
+  see, such as a device rejoining or sending messages you can't read, with `ctx.events.record({ reason, message,
+object: { kind: 'device', id: device.id, name: device.name } })`, so it shows on the device page and in the
+  diagnostics file.
 - **Device page:** instead of a page of your own for each device, render the plugin's `DevicePage` part from your
-  route. It shows the device's state with controls for what can be changed, and its history and activity when you keep
-  history:
+  route. It shows the device's state with controls for what can be changed, its history and activity when you keep
+  history, and the events about it:
 
   ```tsx
   import { studioPart } from '@zflow/studio-sdk';

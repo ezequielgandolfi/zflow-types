@@ -312,7 +312,7 @@ export default defineStudioPlugin({
 - **Data:** read it from the REST API under `/api`. After changing a project's draft, invalidate `draftQueryKeys(id)`
   from studio-sdk so the project page refreshes its changes and issues.
 - **Studio host:** `studioHost()` gives the loaded plugins, the catalog manifests and Studio parts to reuse
-  (`Page`, `PageHeader`, `SettingsForm`, `CollapsibleCard`, `Icon`, `FieldHint`, `EmptyState`, `useToast`,
+  (`Page`, `PageHeader`, `SettingsForm`, `CollapsibleCard`, `Icon`, `FieldHint`, `EmptyState`, `EventList`, `useToast`,
   `SectionActions`, `ShareDialog`, `RowActions`, `DataTable`, `useNarrowScreen`, `Field`, `Switch`, `Menu`, `MenuItem`,
   `Dialog`, `SearchSelect`) and its navigation. It's how the dashboards plugin finds every plugin's widgets. How plugin
   pages should use them and the Studio's classes is in `plugin-kit/STUDIO-UI.md`: keep it current when a shared part

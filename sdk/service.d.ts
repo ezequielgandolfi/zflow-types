@@ -1,3 +1,4 @@
+import type { EventRecorder } from './events.js';
 import type { Logger } from './logger.js';
 import type { PluginStorage } from './storage.js';
 export interface ServiceContext {
@@ -5,6 +6,8 @@ export interface ServiceContext {
     /** The plugin's settings, as saved in the Studio (or its `settings.defaults`). */
     readonly settings: unknown;
     readonly logger: Logger;
+    /** Records what happened to the plugin's devices or connections for the Admin page; also logged. */
+    readonly events: EventRecorder;
     readonly storage: PluginStorage;
     /** A folder of the plugin's own for files, such as a library's database; created on first use. */
     readonly dataDir: string;

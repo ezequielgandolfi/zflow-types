@@ -1,7 +1,7 @@
 {
   "name": "@zflow/sdk",
   "description": "The contract of zflow plugins: definePlugin, steps, runners, services, storage and widgets",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "type": "module",
   "repository": "github:ezequielgandolfi/zflow-types",
   "exports": {

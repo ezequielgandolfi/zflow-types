@@ -25,9 +25,9 @@ against zflow's own copy of `@zflow/sdk`, so the copy here is only for writing, 
    private repos.
 2. Rename it: `name` and `description` in `package.json`; the plugin's `id`, `name` and `description` in
    `src/index.ts`; the step ids (`hello.greet`) and the Studio page's id and paths in `src/studio.tsx`.
-3. Run `npm install` (pnpm works too). The `@zflow/*` packages come from this repo's release `v0.1.11`:
+3. Run `npm install` (pnpm works too). The `@zflow/*` packages come from this repo's release `v0.1.12`:
    ```json
-   "@zflow/sdk": "https://github.com/ezequielgandolfi/zflow-types/releases/download/v0.1.11/zflow-sdk-0.1.11.tgz"
+   "@zflow/sdk": "https://github.com/ezequielgandolfi/zflow-types/releases/download/v0.1.12/zflow-sdk-0.1.12.tgz"
    ```
 4. Write the plugin, following [WRITING-PLUGINS.md](WRITING-PLUGINS.md), and check it with `npm run typecheck`. To
    build on MQTT, devices, dashboards or widget templates, see [BUILT-IN-PLUGINS.md](BUILT-IN-PLUGINS.md). For its
@@ -78,7 +78,7 @@ dependency goes in the plugin's `dependencies` and gets bundled in.
 ```json
 {
   "zflow": {
-    "sdk": "^0.1.11",
+    "sdk": "^0.1.12",
     "sources": { "geo": "github:someone/zflow-geo" }
   }
 }
@@ -103,6 +103,10 @@ dependency goes in the plugin's `dependencies` and gets bundled in.
 - **Files:** don't write next to your code. The installed folder is replaced on update. Use `ctx.dataDir` in
   services, or storage tables.
 - **Logging:** use `ctx.logger`, never the console.
+- **Events:** services and runners record what an admin would want to know later, such as a device going quiet or a
+  connection dropping, with `ctx.events.record({ type, reason, message, object, data })`. Events are logged too, kept
+  in memory for a day, shown on the Admin page and saved in the diagnostics file. Keep `message` the same for the same
+  thing happening and put what changes in `data`, so repeats are counted on one event instead of pushing out others.
 
 ## Testing
 
@@ -131,7 +135,7 @@ folder that holds the plugin's folder.
   "name": "Weather",
   "version": "1.2.0",
   "description": "Adds steps that look up the weather",
-  "sdk": "^0.1.11",
+  "sdk": "^0.1.12",
   "main": "index.js",
   "studio": "studio.js",
   "dependencies": { "templates": "0.1.0", "geo": "1.0.0" },

@@ -119,6 +119,9 @@ function WeatherPage() {
 - **`DataTable`** is for tabular data (history, messages). Give it `columns` (`label`, `render`, `numeric` to align
   numbers right), `rows` and a `rowKey`. On phones each row becomes a card, with the first column as its title, so put
   the most telling column first. Don't write a `<table>` yourself.
+- **`EventList`** lists the events about something, updated as they come: `kind` and `objectId` (`device` and the
+  device's id), `source`, `filters` for a type picker, `shown` and an `empty` sentence. The device page already shows
+  its device's events.
 - Order lists people scan by name alphabetically; order history newest first.
 
 ## Forms

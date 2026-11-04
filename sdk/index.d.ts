@@ -1,6 +1,7 @@
 export * from './appearance.js';
 export * from './component.js';
 export * from './dashboard.js';
+export * from './events.js';
 export * from './graph.js';
 export * from './logger.js';
 export * from './properties.js';
