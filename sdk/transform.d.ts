@@ -1,6 +1,7 @@
 import type { Props, VarStore } from './component.js';
 import type { Logger } from './logger.js';
 import type { PropertySchema, PropertyType } from './properties.js';
+import type { FeatureRequirements } from './requirements.js';
 export interface TransformContext {
     /** The transform's own settings, resolved and coerced to their declared types. */
     readonly props: Props;
@@ -24,6 +25,7 @@ export interface TransformDefinition {
     extraProperties?: PropertySchema;
     /** The type it produces; the Studio only offers it for settings of that type (or `any`). Any type without it. */
     returns?: PropertyType;
+    requires?: FeatureRequirements;
     apply(ctx: TransformContext): unknown;
 }
 export type TransformManifest = Omit<TransformDefinition, 'apply'>;

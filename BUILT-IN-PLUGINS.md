@@ -17,7 +17,8 @@ runners, widgets and pages for people building automations, so plugins have noth
 ## Using another plugin
 
 1. **Declare it** in `definePlugin({ dependencies: { mqtt: '0.1.0' } })`, with the minimum version. Built-ins need no
-   `sources` entry. zflow refuses to reach plugins you don't depend on, and won't load yours without them.
+   `sources` entry. zflow refuses to reach plugins you don't depend on, and won't load yours without them, unless
+   it's `{ version: '0.1.0', optional: true }`: then only the features that `requires` it are disabled.
 2. **Reach it** through the context:
    - `ctx.service<T>('<id>')` in steps, runners and services, for the plugin's running service.
    - `ctx.storage.of('<id>')` for its tables, read-only by convention. Widgets on dashboards also have
@@ -294,7 +295,8 @@ await ctx.command('set', { project: ctx.project.id, name, value }, 'dashboards')
   it with `ctx.project.storage('dashboards').table('values').rows({ where: { name }, limit: 1 })`. No row means the
   runner hasn't started with that value yet.
 - **Settings choices**, from the project (`projectOptions`): `optionsFrom: 'dashboards.values'` lists the values,
-  `'dashboards.switches'` only the on/off ones, and `'dashboards.actions'` the automations bound as widget actions.
+  `'dashboards.switches'` only the on/off ones, `'dashboards.actions'` the automations bound as widget actions, and
+  `'dashboards.dashboards'` "New dashboard" (`new`) and the project's dashboards, for a blueprint's `target`.
   Forms in your own pages pass `projectId` to `SettingsForm` so these can load.
 - The commands fail with "The project's dashboard runner isn't running" until the project has one and is published;
   show that error to the viewer.

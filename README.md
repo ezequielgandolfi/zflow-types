@@ -5,15 +5,15 @@ Studio's Plugins page ("Install from GitHub"). It's written for AI agents as muc
 
 This repo is generated from zflow whenever the plugin contract changes. Don't edit it by hand.
 
-| Path                                       | What it holds                                                                          |
-| ------------------------------------------ | -------------------------------------------------------------------------------------- |
-| [`sdk/`](sdk)                              | `@zflow/sdk`: the plugin contract (`definePlugin`, steps, runners, services, widgets…) |
-| [`studio-sdk/`](studio-sdk)                | `@zflow/studio-sdk`: the contract for a plugin's Studio pages, widgets and templates   |
-| [`plugin-tools/`](plugin-tools)            | `@zflow/plugin-tools`: `zflow-pack-plugin`, which builds the release asset             |
-| [`template/`](template)                    | A starter plugin: a step, a Studio page and the release workflow                       |
-| [WRITING-PLUGINS.md](WRITING-PLUGINS.md)   | How to write steps, transforms, runners, services, widgets and Studio pages            |
-| [BUILT-IN-PLUGINS.md](BUILT-IN-PLUGINS.md) | What built-in plugins offer to build on: MQTT, devices, dashboards, widget templates   |
-| [STUDIO-UI.md](STUDIO-UI.md)               | How to build Studio pages from the Studio's parts and styles, so they match it         |
+| Path                                       | What it holds                                                                           |
+| ------------------------------------------ | --------------------------------------------------------------------------------------- |
+| [`sdk/`](sdk)                              | `@zflow/sdk`: the plugin contract (`definePlugin`, steps, runners, services, widgets…)  |
+| [`studio-sdk/`](studio-sdk)                | `@zflow/studio-sdk`: the contract for a plugin's Studio pages, widgets and templates    |
+| [`plugin-tools/`](plugin-tools)            | `@zflow/plugin-tools`: `zflow-pack-plugin`, which builds the release asset              |
+| [`template/`](template)                    | A starter plugin: a step, a Studio page and the release workflow                        |
+| [WRITING-PLUGINS.md](WRITING-PLUGINS.md)   | How to write steps, transforms, runners, services, widgets, blueprints and Studio pages |
+| [BUILT-IN-PLUGINS.md](BUILT-IN-PLUGINS.md) | What built-in plugins offer to build on: MQTT, devices, dashboards, widget templates    |
+| [STUDIO-UI.md](STUDIO-UI.md)               | How to build Studio pages from the Studio's parts and styles, so they match it          |
 
 The packages hold type definitions with their doc comments, plus the small helpers they export (`definePlugin` and the
 other `define*` functions return what they're given). zflow's engine isn't in them. Once installed, a plugin runs
@@ -25,9 +25,9 @@ against zflow's own copy of `@zflow/sdk`, so the copy here is only for writing, 
    private repos.
 2. Rename it: `name` and `description` in `package.json`; the plugin's `id`, `name` and `description` in
    `src/index.ts`; the step ids (`hello.greet`) and the Studio page's id and paths in `src/studio.tsx`.
-3. Run `npm install` (pnpm works too). The `@zflow/*` packages come from this repo's release `v0.1.12`:
+3. Run `npm install` (pnpm works too). The `@zflow/*` packages come from this repo's release `v0.1.14`:
    ```json
-   "@zflow/sdk": "https://github.com/ezequielgandolfi/zflow-types/releases/download/v0.1.12/zflow-sdk-0.1.12.tgz"
+   "@zflow/sdk": "https://github.com/ezequielgandolfi/zflow-types/releases/download/v0.1.14/zflow-sdk-0.1.14.tgz"
    ```
 4. Write the plugin, following [WRITING-PLUGINS.md](WRITING-PLUGINS.md), and check it with `npm run typecheck`. To
    build on MQTT, devices, dashboards or widget templates, see [BUILT-IN-PLUGINS.md](BUILT-IN-PLUGINS.md). For its
@@ -47,6 +47,7 @@ Read these before writing code. They're the type definitions, with doc comments.
 | Runners                                     | [`sdk/runner.d.ts`](sdk/runner.d.ts)                                                                               |
 | Services, commands                          | [`sdk/service.d.ts`](sdk/service.d.ts)                                                                             |
 | Storage (tables)                            | [`sdk/storage.d.ts`](sdk/storage.d.ts)                                                                             |
+| Blueprints (guided project setups)          | [`sdk/blueprint.d.ts`](sdk/blueprint.d.ts)                                                                         |
 | Widgets, templates, colors                  | [`widget.d.ts`](sdk/widget.d.ts), [`templates.d.ts`](sdk/templates.d.ts), [`appearance.d.ts`](sdk/appearance.d.ts) |
 | Studio module (`defineStudioPlugin`)        | [`studio-sdk/index.d.ts`](studio-sdk/index.d.ts)                                                                   |
 | A complete example                          | [`template/`](template)                                                                                            |
@@ -78,7 +79,7 @@ dependency goes in the plugin's `dependencies` and gets bundled in.
 ```json
 {
   "zflow": {
-    "sdk": "^0.1.12",
+    "sdk": "^0.1.14",
     "sources": { "geo": "github:someone/zflow-geo" }
   }
 }
@@ -97,7 +98,11 @@ dependency goes in the plugin's `dependencies` and gets bundled in.
 - **Versions:** follow semver. Projects require `^` the version they were published with, so breaking changes to steps
   or settings need a new major version.
 - **Dependencies:** list every plugin whose steps, widgets, templates, services or tables you use in `dependencies`,
-  with the minimum version, and give non-built-in ones a `sources` entry.
+  with the minimum version, and give non-built-in ones a `sources` entry. Mark one `{ version, optional: true }` when
+  only some features need it, and give those features `requires: ['<id>']` (or `{ '<id>': '<higher version>' }`):
+  without it, they're disabled and listed on the Plugins page instead of your plugin not loading. Widgets always
+  need the dashboards plugin and their template, without saying so, and settings with `optionsFrom` another plugin
+  need that plugin, which must be in `dependencies`. Optional dependencies aren't installed along.
 - **No native modules:** packages with compiled binaries (`.node` files) can't be bundled. Use pure JavaScript
   libraries.
 - **Files:** don't write next to your code. The installed folder is replaced on update. Use `ctx.dataDir` in
@@ -135,7 +140,7 @@ folder that holds the plugin's folder.
   "name": "Weather",
   "version": "1.2.0",
   "description": "Adds steps that look up the weather",
-  "sdk": "^0.1.12",
+  "sdk": "^0.1.14",
   "main": "index.js",
   "studio": "studio.js",
   "dependencies": { "templates": "0.1.0", "geo": "1.0.0" },

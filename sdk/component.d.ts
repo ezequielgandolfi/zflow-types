@@ -1,4 +1,5 @@
 import type { Logger } from './logger.js';
+import type { FeatureRequirements } from './requirements.js';
 import type { PropertySchema } from './properties.js';
 import type { RunResult } from './run.js';
 import type { RunAutomationOptions } from './runner.js';
@@ -79,6 +80,7 @@ interface ComponentBase {
     /** Restricts the component to automations of these trigger types. */
     triggerTypes?: string[];
     terminal?: boolean;
+    requires?: FeatureRequirements;
 }
 export interface ExecuteComponent extends ComponentBase {
     inputMode: 'none' | 'single';

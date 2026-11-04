@@ -1,4 +1,5 @@
 export * from "./appearance.js";
+export * from "./blueprint.js";
 export * from "./component.js";
 export * from "./dashboard.js";
 export * from "./events.js";
@@ -7,6 +8,7 @@ export * from "./logger.js";
 export * from "./properties.js";
 export * from "./run.js";
 export * from "./plugin.js";
+export * from "./requirements.js";
 export * from "./plugin-package.js";
 export * from "./project.js";
 export * from "./runner.js";

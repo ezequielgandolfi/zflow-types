@@ -1,5 +1,6 @@
+import type { PluginDependencies } from './requirements.js';
 /** Version of the plugin contract in this SDK; a plugin package's `sdk` range must accept it. */
-export declare const SDK_VERSION = "0.1.12";
+export declare const SDK_VERSION = "0.1.14";
 /** File at the root of a plugin package describing it. */
 export declare const PLUGIN_PACKAGE_MANIFEST = "zflow-plugin.json";
 /** Name of the release asset holding a plugin package (a gzipped tarball). */
@@ -16,8 +17,8 @@ export interface PluginPackageManifest {
     main: string;
     /** Pre-bundled Studio module, relative to the package root; replaces the definition's `studio`. */
     studio?: string;
-    /** Same as the definition's `dependencies`: plugin ids with the minimum version of each. */
-    dependencies?: Record<string, string>;
+    /** Same as the definition's `dependencies`. */
+    dependencies?: PluginDependencies;
     /** Where to install dependencies that aren't built in: `github:owner/repo`. */
     sources?: Record<string, string>;
 }

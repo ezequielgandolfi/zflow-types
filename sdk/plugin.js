@@ -1,7 +1,7 @@
 export const definePlugin = (definition) => definition;
 /** Serializable description of a plugin, safe to send to the Studio; `provided` comes from `fromSettings`. */
-export function toPluginManifest(plugin, provided = {}) {
-    const { automations = {}, dashboards = {} } = plugin;
+export function toPluginManifest(plugin, provided = {}, disabledFeatures = []) {
+    const { automations = {}, dashboards = {}, projects = {} } = plugin;
     return {
         id: plugin.id,
         name: plugin.name,
@@ -20,6 +20,17 @@ export function toPluginManifest(plugin, provided = {}) {
             })),
             templates: dashboards.templates ?? [],
         },
+        projects: {
+            blueprints: (projects.blueprints ?? []).map(({ id, name, description, icon, category, pages }) => ({
+                id,
+                name,
+                description,
+                pages,
+                ...(icon && { icon }),
+                ...(category && { category }),
+            })),
+        },
+        disabledFeatures,
     };
 }
 function omit(value, keys) {

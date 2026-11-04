@@ -1,9 +1,15 @@
 /** Version of the plugin contract in this SDK; a plugin package's `sdk` range must accept it. */
-export const SDK_VERSION = '0.1.12';
+export const SDK_VERSION = '0.1.14';
 /** File at the root of a plugin package describing it. */
 export const PLUGIN_PACKAGE_MANIFEST = 'zflow-plugin.json';
 /** Name of the release asset holding a plugin package (a gzipped tarball). */
 export const PLUGIN_PACKAGE_ASSET = 'zflow-plugin.tgz';
+const isMapOf = (value, valid) => !!value && typeof value === 'object' && !Array.isArray(value) && Object.values(value).every(valid);
+const isDependency = (entry) => typeof entry === 'string' ||
+    (!!entry &&
+        typeof entry === 'object' &&
+        typeof entry.version === 'string' &&
+        ['undefined', 'boolean'].includes(typeof entry.optional));
 const GITHUB_SOURCE = /^github:([\w.-]+\/[\w.-]+)$/;
 /** The `owner/repo` of a `github:owner/repo` source, or undefined for any other kind. */
 export const githubRepoOf = (source) => GITHUB_SOURCE.exec(source)?.[1];
@@ -22,13 +28,12 @@ export function parsePluginPackageManifest(value) {
             throw new Error(`"${field}" in ${PLUGIN_PACKAGE_MANIFEST} must be a text`);
         }
     }
-    for (const field of ['dependencies', 'sources']) {
-        const map = manifest[field];
-        if (map === undefined)
-            continue;
-        if (!map || typeof map !== 'object' || Object.values(map).some((entry) => typeof entry !== 'string')) {
-            throw new Error(`"${field}" in ${PLUGIN_PACKAGE_MANIFEST} must map plugin ids to texts`);
-        }
+    const sources = manifest.sources;
+    if (sources !== undefined && !isMapOf(sources, (entry) => typeof entry === 'string')) {
+        throw new Error(`"sources" in ${PLUGIN_PACKAGE_MANIFEST} must map plugin ids to texts`);
+    }
+    if (manifest.dependencies !== undefined && !isMapOf(manifest.dependencies, isDependency)) {
+        throw new Error(`"dependencies" in ${PLUGIN_PACKAGE_MANIFEST} must map plugin ids to versions or to { "version", "optional" }`);
     }
     for (const [id, source] of Object.entries((manifest.sources ?? {}))) {
         if (!githubRepoOf(source)) {

@@ -1,6 +1,7 @@
 import type { Props } from './component.js';
 import type { DashboardSize } from './dashboard.js';
 import type { PropertySchema } from './properties.js';
+import type { FeatureRequirements } from './requirements.js';
 import type { RunStatus } from './run.js';
 import type { PluginStorage, TableStorage } from './storage.js';
 /** A window of time: the last `minutes` up to now, or between two timestamps (ms since epoch). */
@@ -91,6 +92,8 @@ export interface WidgetDefinition {
     frameless?: boolean;
     /** How often the Studio asks for fresh data, in milliseconds. Without it, data is loaded once. */
     refreshMs?: number;
+    /** Besides these, a widget always needs the dashboards plugin and its template. */
+    requires?: FeatureRequirements;
     /** Runs in studio-server; whatever it returns is passed to the widget's component as `data`. */
     data?(ctx: WidgetDataContext): unknown;
     /**
@@ -110,6 +113,7 @@ export interface WidgetTemplateDefinition {
     name: string;
     /** One plain sentence, shown on the Plugins page. */
     description: string;
+    requires?: FeatureRequirements;
 }
 export declare const defineWidgetTemplate: (definition: WidgetTemplateDefinition) => WidgetTemplateDefinition;
 export declare function rangeBounds(range: TimeRange, now?: number): {

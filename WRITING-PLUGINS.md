@@ -19,20 +19,28 @@ export default definePlugin({
   name: 'Weather',
   version: '1.0.0', // semver; projects require ^this version
   description: 'Adds steps that look up the weather', // one plain sentence, shown on the Plugins page
-  dependencies: { templates: '0.1.0' }, // optional: plugin ids with the minimum version of each
+  dependencies: { iot: '0.1.0', templates: { version: '0.1.0', optional: true } }, // plugin ids with minimum versions
   automations: { components: [/* steps */], runners: [/* runners */], transforms: [/* transforms */] },
   dashboards: { widgets: [/* widgets */], templates: [/* widget templates */] },
+  projects: { blueprints: [/* blueprints */] },
   settings: { defaults: {} /* validate, redact, prepare, options */ },
   studio: './studio.tsx', // optional, relative to this file
 });
 ```
 
-- **Scopes:** fields are grouped by area (`automations`, `dashboards`, `settings`) so new areas can't clash; the
+- **Scopes:** fields are grouped by area (`automations`, `dashboards`, `projects`, `settings`) so new areas can't clash; the
   Studio side mirrors it (`dashboards: { widgets, templates }`).
 - **Dependencies:** declare the plugins whose steps, widgets, templates, services or tables yours relies on. Loading
   fails when one is missing, older than the minimum or when dependencies go round in a circle, and the Plugins page
   lists them. Only dependencies can be reached: `ctx.service(id)`, `storage.of(id)` and `ctx.command(name, input, id)`
   refuse any other plugin.
+- **Optional dependencies and features:** `{ version, optional: true }` lets the plugin load without that dependency
+  (it must still be new enough when it's there). Steps, transforms, runners, widgets, templates and blueprints, or a
+  whole area (`automations.requires`, `dashboards.requires`), declare `requires` (ids, or ids with a higher minimum version), which
+  must be in `dependencies`. Widgets also need `dashboards` and their template, and any feature needs the plugins its
+  settings take `optionsFrom` (which must be declared too). The registry leaves out features whose
+  requirements aren't loaded (`resolveFeatures` in `packages/registry`) and lists them in the manifest's
+  `disabledFeatures`, which the Plugins page shows.
 - **Ids:** component ids are namespaced by the plugin (`weather.forecast`). Duplicate component ids or runner types
   across plugins are rejected at load time.
 - **Imports:** `@zflow/sdk` resolves to the host's copy, so a plugin folder needs no `node_modules` for it. Any other
@@ -422,3 +430,122 @@ defineStudioPlugin({ id: 'weather', dashboards: { templates: { 'weather.map': Ma
 - **Ranges:** templates with a range picker call `onRangeChange`, and the range reaches `data()` as `ctx.range` (a
   `TimeRange`; `rangeBounds` turns it into timestamps). It's the viewer's own choice and isn't saved. Long ranges
   should use `table.series(...)`, which aggregates rows into buckets, instead of returning every row.
+
+## A blueprint
+
+A blueprint is a guided setup: the project page's "Add from blueprint" asks its pages of questions in a dialog, then
+adds automations, integrations and dashboard groups filled in with the answers. It's all data, so the Studio renders
+it and the plugin needs no Studio code.
+
+```ts
+const literal = (value: unknown) => ({ kind: 'literal' as const, value });
+
+export const weatherAlert = defineBlueprint({
+  id: 'weather.alert', // namespaced by the plugin, like steps
+  name: 'Weather alert',
+  description: 'Warns when tomorrow gets too hot, and shows the forecast on a dashboard',
+  icon: 'cloud-sun',
+  category: 'Weather', // groups the dialog's list
+  requires: ['dashboards'], // like features' `requires`; plugins used by `optionsFrom` are implied
+  pages: [
+    {
+      id: 'city', // answers are read as "<page id>.<field>"
+      title: 'City', // also the stepper's label
+      properties: {
+        city: { type: 'enum', label: 'City', optionsFrom: 'weather.cities', required: true },
+        above: { type: 'number', label: 'Warn above', default: 30 },
+      },
+    },
+    {
+      id: 'dashboard',
+      title: 'Dashboard',
+      properties: {
+        target: { type: 'enum', label: 'Dashboard', optionsFrom: 'dashboards.dashboards', default: 'new' },
+        name: { type: 'string', label: 'Name', required: true, visibleWhen: { target: ['new'] } },
+      },
+    },
+  ],
+  automations: [
+    {
+      id: 'alert', // only for the bindings below; the project gets a new id
+      name: { $text: 'Heat in {{city.city.label}}' },
+      triggerType: 'schedule',
+      graph: {
+        nodes: [
+          {
+            id: 'start',
+            type: 'trigger.schedule-input',
+            label: 'Scheduled start',
+            position: { x: 0, y: 0 },
+            properties: {},
+          },
+          {
+            id: 'forecast',
+            type: 'weather.forecast',
+            label: 'Get forecast',
+            position: { x: 308, y: 0 },
+            properties: { city: literal({ $input: 'city.city' }) },
+          },
+        ],
+        edges: [{ id: 'start-forecast', source: 'start', sourceOutput: 'ok', target: 'forecast' }],
+      },
+    },
+  ],
+  runners: [{ type: 'scheduler', bindings: [{ automationId: 'alert', config: { cron: '0 18 * * *' } }] }],
+  dashboards: [
+    {
+      target: { $input: 'dashboard.target' },
+      name: { $input: 'dashboard.name' },
+      groups: [
+        {
+          title: { $input: 'city.city', $label: true },
+          widgets: [
+            { type: 'weather.today', config: { city: { $input: 'city.city' } } },
+            {
+              $each: { options: 'weather.stations', values: { city: { $input: 'city.city' } } },
+              type: 'weather.station',
+              config: { station: { $item: 'value' }, label: { $item: 'label' } },
+            },
+          ],
+        },
+      ],
+    },
+  ],
+});
+definePlugin({ /* ... */ projects: { blueprints: [weatherAlert] } });
+```
+
+- **Pages:** each page's `properties` are ordinary settings, rendered by `SettingsForm` with everything it supports
+  (`optionsFrom` and `optionsDependOn`, `visibleWhen`, `default`, `format`). Settings only depend on fields of their
+  own page. The dialog checks required fields before Next, and ends with a step asking for a name prefix.
+- **Placeholders:** any value in the templates can be one, replaced when the blueprint is used:
+  - `{ $input: '<page>.<field>' }` is the answer as it is (a number stays a number); with `$label: true`, the label of
+    the option picked in an `enum`. Answers left empty are left out, and hidden fields are never answered.
+  - `{ $text: '…' }` is text with `{{<page>.<field>}}`, `{{<page>.<field>.label}}`, `{{item.value}}` and
+    `{{item.label}}` replaced. Plain strings stay as they are, so a step's own `{{placeholders}}` (core's "Template
+    text") are kept.
+  - `{ $item: 'value' | 'label' }` is the option of the innermost `$each`.
+  - In step settings, the placeholder goes inside the property value: `literal({ $input: 'city.city' })`.
+- **Lists:** any entry of a list that's an object (an automation, a node, a binding, a group, a widget) can take:
+  - `$each: { options, values }` repeats it once per choice of an option source, as an `optionsFrom` setting with
+    those `optionsDependOn` values would get them (the values can be placeholders).
+  - `$when` keeps it only when a condition holds: `{ input: '<page>.<field>', is?: [values] }` (without `is`, when the
+    answer is set and not false), `{ options, values, has: '<value>' }` (the source has that choice, like "the device
+    has a temperature") or `{ not: condition }`. Both can go on the same entry; `$when` is checked first.
+  - A step left out takes its links with it; a binding must not refer to an automation that was left out.
+- **Ids and names:** automation ids are local to the blueprint; groups and widgets get new ids, and node ids stay as
+  they are, so nodes repeated with `$each` need `$text` ids. The prefix goes before every name the blueprint creates.
+- **Integrations:** a type a project can only have one of (`single`) is added to: it gets the bindings, and its list
+  settings get the new entries (a Dashboard integration's values); its other settings stay. Any other type is a new
+  integration, named `name` or the integration's own name.
+- **Dashboards:** when `target` is the id of a dashboard of the project, the groups go at its end; otherwise a new
+  dashboard named `name` is created. The dashboards plugin's `dashboards.dashboards` source lists "New dashboard"
+  (`new`) and the project's dashboards. Widgets without `width` or `rows` get the ones they're added with.
+- **Generating:** studio-server checks the answers again (required fields, `enum` choices still available), fills the
+  templates and validates the project with the new pieces. It refuses when that adds issues to the draft, and
+  otherwise writes everything at once into the draft; nothing is published.
+- **Mistakes:** a placeholder naming a field no page asks, an unknown option source or a binding to a missing
+  automation fail when the blueprint is used, with "The "<name>" blueprint can't be used: …". The steps, integrations
+  and widgets it adds are checked like any draft, so declare their plugins in `requires`.
+- **Testing:** inside this repo, `checkAnswers(blueprint, answers, options)` and `fillBlueprint(blueprint, checked,
+options)` from `@zflow/engine` fill one without a project, with `options` standing in for the option sources.

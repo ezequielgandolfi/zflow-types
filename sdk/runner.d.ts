@@ -2,6 +2,7 @@ import type { ProjectInfo, Props } from './component.js';
 import type { EventRecorder } from './events.js';
 import type { Logger } from './logger.js';
 import type { PropertySchema } from './properties.js';
+import type { FeatureRequirements } from './requirements.js';
 import type { RunResult } from './run.js';
 import type { ServiceInstance } from './service.js';
 import type { TableStorage } from './storage.js';
@@ -50,6 +51,7 @@ export interface RunnerDefinition {
     bindingSchema: Record<string, PropertySchema>;
     /** Checks a binding beyond its schema (e.g. a cron expression) so publishing fails instead of the runner. */
     validateBinding?(config: Props): string[];
+    requires?: FeatureRequirements;
     create(ctx: RunnerContext): RunnerInstance;
 }
 export declare const defineRunner: (definition: RunnerDefinition) => RunnerDefinition;
