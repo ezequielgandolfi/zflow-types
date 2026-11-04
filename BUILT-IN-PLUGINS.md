@@ -329,7 +329,7 @@ this.unregister = ctx.service<NotifyService>('notify').registerChannel('chat.mes
 ## Screens (`screens`)
 
 A screen shows one published dashboard on a TV. The screens service keeps each one as a device (type `screen`, with a
-`showing` on/off property), so Google Home, the device steps and widgets turn it on. A driver is how the page reaches
+`state` on/off property, labelled Showing), so Google Home, the device steps and widgets turn it on. A driver is how the page reaches
 the TV; add one from your service:
 
 ```ts
