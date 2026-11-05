@@ -12,7 +12,6 @@ runners, widgets and pages for people building automations, so plugins have noth
 | `iot`        | Bring devices from any ecosystem, or read and control the devices others bring | 0.1.0   |
 | `dashboards` | Run a project's widget actions and change its dashboard values                 | 0.1.0   |
 | `notify`     | Add a channel notifications are sent through, like SMS or a chat app           | 0.1.0   |
-| `screens`    | Add a driver that puts dashboards on TVs, like a kiosk browser                 | 0.1.0   |
 
 ## Using another plugin
 
@@ -313,10 +312,12 @@ interface NotifyChannel {
   label: string;
   /** Sends to one recipient; throws with a message saying what's wrong and how to fix it. */
   send(message: { to: string; text: string }, signal: AbortSignal): Promise<void>;
+  /** The recipients to pick from, like speakers; without it, recipients are typed in, like phone numbers. */
+  recipients?: { value: string; label: string }[];
 }
 
 interface NotifyService {
-  /** Returns the call that removes the channel. */
+  /** Call it again when the recipients change. Returns the call that removes the channel. */
   registerChannel(id: string, channel: NotifyChannel): () => void;
 }
 
@@ -325,53 +326,10 @@ this.unregister = ctx.service<NotifyService>('notify').registerChannel('chat.mes
 ```
 
 - **Ids:** prefix the channel id with your plugin id. Projects store it, so keep it stable.
-- **Recipients** are what the notification's "To" lists, separated by commas, so check their format in `send`.
+- **Recipients** are what the notification's "To" lists, separated by commas, so check their format in `send`. With
+  `recipients`, "To" picks from them instead and `send` gets their `value`; the history shows their `label`.
 - The notify service applies the hourly cap and the notification's own limit, and records every delivery in the
   project's `deliveries` table (`{ notification, channel, to, message, status, error, at }`, `status` being `sent`,
   `failed` or `limited`). Your channel only delivers.
 - **Settings choices:** `optionsFrom: 'notify.notifications'` lists the project's notifications (`projectOptions`), and
   `'notify.channels'` the channels.
-
-## Screens (`screens`)
-
-A screen shows one published dashboard on a TV. The screens service keeps each one as a device (type `screen`, with a
-`state` on/off property, labelled Showing), so Google Home, the device steps and widgets turn it on. A driver is how the page reaches
-the TV; add one from your service:
-
-```ts
-interface ScreenTarget {
-  id: string;
-  name: string;
-  /** The screen's settings for your driver, as your `configSchema` describes them. */
-  config: Record<string, unknown>;
-  /** The dashboard's share link, which opens it full screen. */
-  url: string;
-}
-
-interface ScreenDriver {
-  /** Shown in the screen's "Shown with" picker, like "Chromecast". */
-  label: string;
-  /** The settings each screen needs for this driver, like the TV's address; the Screens page renders them. */
-  configSchema: Record<string, PropertySchema>;
-  show(target: ScreenTarget, signal: AbortSignal): Promise<void>;
-  hide(target: ScreenTarget, signal: AbortSignal): Promise<void>;
-  /** Polled every 30 seconds; `showing` is whether the TV shows this screen's `url`. */
-  status(target: ScreenTarget, signal: AbortSignal): Promise<{ online: boolean; showing: boolean }>;
-  /** Screens found on the network, offered when adding one. */
-  discover?(signal: AbortSignal): Promise<{ name: string; config: Record<string, unknown> }[]>;
-}
-
-interface ScreensService {
-  /** Returns the call that removes the driver. */
-  registerDriver(id: string, driver: ScreenDriver): () => void;
-}
-
-// In your service's start(), with stop() calling what it returned:
-this.unregister = ctx.service<ScreensService>('screens').registerDriver('kiosk.browser', driver);
-```
-
-- **Ids:** prefix the driver id with your plugin id. Screens store it, so keep it stable.
-- Several screens can share one TV with different dashboards, so `status` should only report `showing` for the URL
-  it was given.
-- Throw from `show` and `hide` with a message saying what's wrong and how to fix it; it reaches whoever turned the
-  screen on.

@@ -221,12 +221,10 @@ definePlugin({
   "Set device") and "… by id" ones whose device and property can come from other steps. The project page doesn't
   list devices for now; `ProjectDevices` in its studio module is ready to become a `project` section again.
 - **Building on notifications:** a plugin that sends notifications depends on `notify` and, from its service's
-  `start()`, calls `registerChannel('<plugin id>.<channel>', { label, send })`, keeping the function it returns to
-  unregister in `stop()`. The notify service records the channels in its `channels` table for the Studio's pickers,
+  `start()`, calls `registerChannel('<plugin id>.<channel>', { label, send, recipients? })`, keeping the function it
+  returns to unregister in `stop()`. Channels with `recipients` (Cast's speakers) register again when they change, and
+  "To" picks from them (a `string` setting with `optionsFrom` renders as a multi-pick when its source has choices). The notify service records the channels in its `channels` table for the Studio's pickers,
   applies the hourly cap and records deliveries; `send` only delivers to one recipient or throws.
-- **Building on screens:** a plugin that puts pages on TVs depends on `screens` and, from its service's `start()`,
-  calls `registerDriver('<plugin id>.<driver>', { label, configSchema, show, hide, status, discover? })`. Drivers only
-  get a URL and the screen's own settings; the screens service owns the share links, the devices and their polling.
 - **Zigbee:** the service never throws on start, so its commands (like listing serial ports) work without a
   coordinator; failures show in `status()`. Its readings are kept by the Devices history, for as long as its settings say.
   herdsman and

@@ -9,7 +9,10 @@ export interface PropertySchema {
     description?: string;
     default?: unknown;
     options?: PropertyOption[];
-    /** Loads the options at runtime from a plugin's option source, written as "<plugin id>.<source>". */
+    /**
+     * Loads the options at runtime from a plugin's option source, written as "<plugin id>.<source>". On a `string`,
+     * the Studio picks one or more of them (comma-separated) when the source has any, and takes typed text otherwise.
+     */
     optionsFrom?: string;
     /** Sibling settings the `optionsFrom` choices depend on: the source gets their values, and the Studio reloads them. */
     optionsDependOn?: string[];
