@@ -144,7 +144,7 @@ function WeatherPage() {
 ```
 
 - **`SettingsForm`** renders a whole form from property schemas (the same ones steps use), with every field type the
-  editor has (cron, duration, icon, color, options from settings…), groups and conditional fields. Prefer it whenever
+  editor has (cron, duration, icon, color, coordinates, options from settings…), groups and conditional fields. Prefer it whenever
   the settings fit a schema.
 - **`Field`** is one labelled field for anything else. Its children are the control, or a function given the id that
   links it to the label. `hint` is a tooltip on an info icon beside the label, not text under the input, so fields in

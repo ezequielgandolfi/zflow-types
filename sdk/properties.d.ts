@@ -30,12 +30,19 @@ export interface PropertySchema {
     /**
      * `automation` is a string holding the id of an automation that other automations can start, and `icon` a string
      * holding a Lucide icon name (kebab-case), `color` a string holding a CSS named color, `transform` an `any`
-     * holding a `TransformValue` that widgets apply to their data's value, and `duration` a number of milliseconds.
+     * holding a `TransformValue` that widgets apply to their data's value, `duration` a number of milliseconds, and
+     * `coordinates` an `object` holding `Coordinates`.
      */
-    format?: 'cron' | 'automation' | 'icon' | 'color' | 'transform' | 'duration';
+    format?: 'cron' | 'automation' | 'icon' | 'color' | 'transform' | 'duration' | 'coordinates';
     /** Lets a `format: 'automation'` setting pick any automation, not only those other automations can start. */
     anyAutomation?: boolean;
 }
+/** A place on Earth, in decimal degrees. */
+export interface Coordinates {
+    latitude: number;
+    longitude: number;
+}
+export declare const isCoordinates: (value: unknown) => value is Coordinates;
 export type PropertyValue = {
     kind: 'literal';
     value: unknown;

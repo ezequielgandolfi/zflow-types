@@ -14,7 +14,7 @@ export interface RunnerConfig {
     bindings: RunnerBinding[];
 }
 /** Bumped whenever the project file shape changes; older files are migrated when opened. */
-export declare const PROJECT_FORMAT_VERSION = 6;
+export declare const PROJECT_FORMAT_VERSION = 7;
 /** Everything the engine needs to run a project; also the shape of a published version and of exported files. */
 export interface ProjectSnapshot {
     formatVersion: number;

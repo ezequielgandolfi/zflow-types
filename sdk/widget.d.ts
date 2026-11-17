@@ -18,6 +18,8 @@ export interface WidgetDataContext {
     readonly range?: TimeRange;
     /** The plugin's settings, as saved in the Studio (or its `settings.defaults`). */
     readonly settings: unknown;
+    /** The saved settings of a plugin the widget's plugin depends on; undefined when that plugin isn't loaded. */
+    readonly settingsOf: (pluginId: string) => unknown;
     readonly storage: PluginStorage;
     readonly signal: AbortSignal;
     /** The project of the dashboard showing the widget; undefined when the Studio doesn't say. */
@@ -49,6 +51,8 @@ export interface WidgetActionContext {
     /** What the widget's component sent, like `{ on: true }`. */
     readonly input: unknown;
     readonly settings: unknown;
+    /** The saved settings of a plugin the widget's plugin depends on; undefined when that plugin isn't loaded. */
+    readonly settingsOf: (pluginId: string) => unknown;
     readonly storage: PluginStorage;
     readonly signal: AbortSignal;
     /** The project of the dashboard. */

@@ -114,7 +114,8 @@ export const forecast = defineComponent({
   `format: 'icon'` for a picker of the Lucide icons the Studio ships with (`ui/IconField.tsx`, from `lucide-react`'s
   `iconNames`, so there's no list to maintain), `format: 'color'` for a picker of the CSS named colors
   (`CSS_COLORS` in the SDK), `format: 'duration'` on a number of milliseconds for an amount and a unit
-  (`ui/DurationField.tsx`), and `format: 'transform'` on an `any` setting for an optional transform over the widget's
+  (`ui/DurationField.tsx`), `format: 'coordinates'` on an `object` for a latitude and longitude with a "Use my
+  location" link that asks the browser (`ui/CoordinatesField.tsx`; `Coordinates` and `isCoordinates` in the SDK), and `format: 'transform'` on an `any` setting for an optional transform over the widget's
   value (`TransformField` in `ValueEditor.tsx`; its settings can only read `WIDGET_VALUE`).
 - **Secret settings:** `secret: true` on a property (passwords, tokens, request headers) hides its value in captured
   runs.
@@ -218,8 +219,12 @@ definePlugin({
   when it changes), each report's state is kept in the `readings` table of the device's scope, pruned at most hourly
   as readings arrive and dropped with the device; the Device history and Device activity widgets and the `history`,
   `activity` and `purge` actions read it, so provider pages draw it without tables of their own. Steps come in pairs: pickers ("Get device",
-  "Set device") and "… by id" ones whose device and property can come from other steps. The project page doesn't
-  list devices for now; `ProjectDevices` in its studio module is ready to become a `project` section again.
+  "Set device") and "… by id" ones whose device and property can come from other steps. The service records "Low
+  battery" and emits `battery-low` when a battery crosses the `lowBattery` setting, and a check every 15 minutes marks
+  devices that stop reporting for `offlineAfterHours` offline (`settings.ts`). The Devices integration's `stays` event
+  (a property staying at a value for a while) keeps at most one timer per binding and device in the runner, never
+  inside a run, and fires once until the condition breaks. Providers without a device page link to
+  `/iot/devices/:id`. The project page doesn't list devices for now; `ProjectDevices` in its studio module is ready to become a `project` section again.
 - **Building on notifications:** a plugin that sends notifications depends on `notify` and, from its service's
   `start()`, calls `registerChannel('<plugin id>.<channel>', { label, send, recipients? })`, keeping the function it
   returns to unregister in `stop()`. Channels with `recipients` (Cast's speakers) register again when they change, and
@@ -362,7 +367,8 @@ export const forecastWidget = defineWidget({
   refreshMs: 60_000, // how often the dashboard asks for data again
   properties: { city: { type: 'string', label: 'City', required: true } },
   async data(ctx) {
-    // runs in studio-server; ctx.config, ctx.settings, ctx.storage, ctx.signal, ctx.project (on dashboards)
+    // runs in studio-server; ctx.config, ctx.settings, ctx.storage, ctx.signal, ctx.project (on dashboards),
+    // ctx.settingsOf(pluginId) for a dependency's settings
     return fetchForecast(ctx.config.city as string, { signal: ctx.signal });
   },
   actions: {

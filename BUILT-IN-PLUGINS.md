@@ -12,6 +12,7 @@ runners, widgets and pages for people building automations, so plugins have noth
 | `iot`        | Bring devices from any ecosystem, or read and control the devices others bring | 0.1.0   |
 | `dashboards` | Run a project's widget actions and change its dashboard values                 | 0.1.0   |
 | `notify`     | Add a channel notifications are sent through, like SMS or a chat app           | 0.1.0   |
+| `home`       | Read where the home is, and the sunrise and sunset there                       | 0.1.0   |
 
 ## Using another plugin
 
@@ -24,6 +25,7 @@ runners, widgets and pages for people building automations, so plugins have noth
      `ctx.project.storage('<id>')` for its tables of that project.
    - `ctx.command(name, input, '<id>')` in widget actions and plugin actions, for its service's commands. Those run in
      studio-server, while services live in the engine.
+   - `ctx.settingsOf('<id>')` in widget data and actions, for its saved settings.
    - `optionsFrom: '<id>.<source>'` (or `projectOptions` sources) on an `enum` setting, for its lists of choices.
    - `template: 'templates.<name>'` on a widget.
 3. **Type it yourself.** Only the SDK is published, not the plugins, so copy the interfaces below into your plugin
@@ -171,9 +173,9 @@ export interface Device {
 }
 
 export interface DeviceEvent {
-  event: 'changed' | 'online' | 'offline' | 'added' | 'removed';
+  event: 'changed' | 'online' | 'offline' | 'added' | 'removed' | 'battery-low';
   device: Device;
-  property?: string; // for `changed`, one event per property
+  property?: string; // for `changed`, one event per property; `battery` for `battery-low`
   value?: unknown;
   previous?: unknown;
 }
@@ -274,6 +276,11 @@ object: { kind: 'device', id: device.id, name: device.name } })`, so it shows on
 - **Settings choices:** `optionsFrom: 'iot.devices'` lists the devices (the value is the device id). For the property
   of a picked device, add `optionsDependOn: ['device']`, with your device setting named `device`, and pick a source:
   `iot.properties` (readable), `iot.numeric` (readable numbers), `iot.writable` and `iot.switches` (writable on/off).
+- **Battery and offline:** the service records a "Low battery" warning and emits `battery-low` when a device's
+  `battery` crosses the IoT settings' `lowBattery` (20 by default). With `offlineAfterHours` set, a check every 15
+  minutes reports devices that have a `lastSeen` and went quiet as offline. Providers that track online themselves need
+  nothing more; others should report `at` with each state so `lastSeen` is kept.
+- **Device page:** providers without a device page of their own can link to `/iot/devices/<device id>`.
 - **Commands:** widget actions change devices with `ctx.command('set', { device, values, project? }, 'iot')`, and
   also have `rename` (`{ device, name, project? }`) and `refresh` (`{ device, project? }`).
 
@@ -333,3 +340,29 @@ this.unregister = ctx.service<NotifyService>('notify').registerChannel('chat.mes
   `failed` or `limited`). Your channel only delivers.
 - **Settings choices:** `optionsFrom: 'notify.notifications'` lists the project's notifications (`projectOptions`), and
   `'notify.channels'` the channels.
+
+## Home (`home`)
+
+The home's location, set in the Home card on the Admin page. Steps, runners and services read it from the service;
+widgets, which run in studio-server, read the saved settings with `ctx.settingsOf('home')`:
+
+```ts
+interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
+
+interface HomeService {
+  /** Undefined until it's set. */
+  location(): Coordinates | undefined;
+  /** Called whenever the home settings change, such as a new location; returns the call that stops it. */
+  onChange(listener: () => void): () => void;
+}
+
+// In a widget's data(): the same location, from the saved settings
+const { location } = (ctx.settingsOf('home') ?? {}) as { location?: Coordinates };
+```
+
+- Without a location, say so with "Set the home location in the Home card on the Admin page".
+- Runners that plan around the location (like sunrise and sunset schedules) should plan again in `onChange`.
+- `isCoordinates` from the SDK checks a value is a valid `Coordinates`.
