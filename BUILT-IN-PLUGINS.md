@@ -281,6 +281,9 @@ object: { kind: 'device', id: device.id, name: device.name } })`, so it shows on
   minutes reports devices that have a `lastSeen` and went quiet as offline. Providers that track online themselves need
   nothing more; others should report `at` with each state so `lastSeen` is kept.
 - **Device page:** providers without a device page of their own can link to `/iot/devices/<device id>`.
+- **Virtual devices:** the plugin is the provider (`iot`) of the virtual devices added on its Devices page, which hold
+  what is written to them. They read and change like any other device, with Zigbee's property names (`state` as
+  `ON`/`OFF` for a switch).
 - **Commands:** widget actions change devices with `ctx.command('set', { device, values, project? }, 'iot')`, and
   also have `rename` (`{ device, name, project? }`) and `refresh` (`{ device, project? }`).
 
